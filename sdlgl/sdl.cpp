@@ -4,7 +4,10 @@
 #include <vector>
 #include <fstream>
 #include <filesystem>
-// see docs.gl
+
+// see
+// https://docs.gl
+// https://www.youtube.com/c/MikeShah
 
 // Globals
 int gScreenHeight = 600;
@@ -18,6 +21,7 @@ bool gQuit = false;
 GLuint gVertexArrayObject = 0;
 // VBO
 GLuint gVertexBufferObject = 0;
+GLuint gVertexBufferObject2 = 0;
 // Program Object (for shaders) ie graphics pipeline
 GLuint gGraphicsPipelineShaderProgram = 0;
 
@@ -88,17 +92,27 @@ void VertexSpecification() {
     0.0f, 0.8f, 0.0f    // vertex 3
   };
 
+  const std::vector<GLfloat> vertexColor {
+    // r    g    b
+    1.0f, 0.0f, 0.0f, // red
+    0.8f, 1.0f, 0.0f, // green
+    0.0f, 0.0f, 1.0f  // blue
+  };
+
+
   // generate VBA
   glGenVertexArrays(1, &gVertexArrayObject);
   glBindVertexArray(gVertexArrayObject);
 
-  // start generating VBO
+  // start generating VBOs
+  // position
   glGenBuffers(1, &gVertexBufferObject);
   glBindBuffer(GL_ARRAY_BUFFER, gVertexBufferObject);
   glBufferData(GL_ARRAY_BUFFER,
                vertexPosition.size() * sizeof(GLfloat),
                vertexPosition.data(),
                GL_STATIC_DRAW);
+
   glEnableVertexAttribArray(0); // 0 is the position (only one attribute)
   glVertexAttribPointer(0, // index
                         3, // size (3, ie x,y,z)
@@ -106,9 +120,28 @@ void VertexSpecification() {
                         GL_FALSE, // normalized? True could work
                         0, // space in between attributes
                         (void*)0); // offset?
+
+  // color
+  glGenBuffers(1, &gVertexBufferObject2);
+  glBindBuffer(GL_ARRAY_BUFFER, gVertexBufferObject2);
+  glBufferData(GL_ARRAY_BUFFER,
+               vertexColor.size() * sizeof(GLfloat),
+               vertexColor.data(),
+               GL_STATIC_DRAW);
+
+  glEnableVertexAttribArray(1);
+  glVertexAttribPointer(1,
+                        3, // r,g,b
+                        GL_FLOAT,
+                        GL_FALSE,
+                        0,
+                        (void*)0);
+
+
   // cleanup
   glBindVertexArray(0);
   glDisableVertexAttribArray(0);
+  glDisableVertexAttribArray(1);
 }
 
 GLuint CompileShader(GLuint type, const std::string &source){
@@ -157,14 +190,11 @@ GLuint CreateShaderProgram(const std::string &vertexShaderSource,
 }
 
 void CreateGraphicsPipeline() {
-
   std::string vertexShaderSource = LoadShaderAsString("./shaders/vert.glsl");
   std::string fragmentShaderSource = LoadShaderAsString("./shaders/frag.glsl");
   gGraphicsPipelineShaderProgram = CreateShaderProgram(vertexShaderSource,
     fragmentShaderSource);
 }
-
-
 
 void Input() {
   SDL_Event e;
@@ -189,7 +219,6 @@ void PreDraw() {
 void Draw() {
   glBindVertexArray(gVertexArrayObject);
   glBindBuffer(GL_ARRAY_BUFFER, gVertexBufferObject);
-
   glDrawArrays(GL_TRIANGLES, 0, 3);
   glUseProgram(0);
 }
