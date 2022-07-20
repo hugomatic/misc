@@ -16,6 +16,8 @@ add_executable(async async.cpp)
 
 add_executable(jthread jthread.cpp)
 
+add_executable(circularq circularq.cpp)
+
 install (TARGETS
   exe
   DESTINATION lib/${PROJECT_NAME}

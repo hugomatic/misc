@@ -84,6 +84,48 @@ void InitializeProgram() {
 }
 
 void VertexSpecification() {
+  const std::vector<GLfloat> vertexData {
+    // x|r   y|g   z|b
+    -0.8f, -0.8f, 0.0f,  // vertex 1
+    1.0f, 0.0f, 0.0f,    // red
+    0.8f,  -0.8f, 0.0f,  // vertex 2
+    0.8f, 1.0f, 0.0f,    // green
+    0.0f, 0.8f, 0.0f,    // vertex 3
+    0.0f, 0.0f, 1.0f     // blue
+  };
+
+  // generate VBA
+  glGenVertexArrays(1, &gVertexArrayObject);
+  glBindVertexArray(gVertexArrayObject);
+
+  // start generating VBOs
+  // position
+  glGenBuffers(1, &gVertexBufferObject);
+  glBindBuffer(GL_ARRAY_BUFFER, gVertexBufferObject);
+  glBufferData(GL_ARRAY_BUFFER,
+               vertexData.size() * sizeof(GLfloat),
+               vertexData.data(),
+               GL_STATIC_DRAW);
+
+  GLsizei stride = sizeof(GLfloat) * 6;
+  glEnableVertexAttribArray(0); // 0 is the position x,y,z
+  glVertexAttribPointer(0, // index
+                        3, // size (3, ie x,y,z)
+                        GL_FLOAT, // type
+                        GL_FALSE, // normalized? True could work
+                        stride, // space in between attributes
+                        (void*)0); // offset?
+  glEnableVertexAttribArray(1); // 1 is the color r,g,b
+  glVertexAttribPointer(1, // index
+                        3, // size (3, ie r,g,b)
+                        GL_FLOAT, // type
+                        GL_FALSE, // normalized? True could work
+                        stride, // space in between attributes
+                        (GLvoid*) (sizeof(GLfloat) *3)); // offset?
+
+}
+
+void VertexSpecification_using_2_arrays() {
   // lives on the cpu
   const std::vector<GLfloat> vertexPosition {
     // x    y    z
