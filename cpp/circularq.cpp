@@ -59,13 +59,15 @@ class CircularQueue
   int newest;
   int oldest;
   int elemCount;
+  bool debug;
 public:
     /// Initialize the queue with a given size
     CircularQueue (int buffer_size)
      :buffer_size(buffer_size),
       newest(0),
       oldest(),
-      elemCount(0)
+      elemCount(0),
+      debug(true)
 
     {
       elements.resize(buffer_size);
@@ -107,9 +109,11 @@ public:
     }
 
     void pr() {
-      // std::cerr << "# newest " << newest   << std::endl;
-      // std::cerr << "# oldest " << oldest   << std::endl;
-      std::cerr << "# buffer " << buffer_size << " count " << count() << " n,o[" << newest << ", " << oldest << "]"  << std::endl;
+      if (!debug)
+        return;
+
+      std::cerr << "# buffer " << buffer_size << " count " << count();
+      std::cerr  << " n,o[" << newest << ", " << oldest << "]"  << std::endl;
       std::cerr << "# ";
       for (auto v: elements) {
         std::cerr << v << ",  ";
@@ -117,7 +121,7 @@ public:
 
       std::cerr << std::endl;
       std::cerr << "# ";
-      for (size_t i=0; i < elements.size(); ++i) {
+      for (int i=0; i < int(elements.size()); ++i) {
         char c = ' ';
         if (i == newest) c = 'n';
         if (i == oldest) c = 'o';

@@ -10,7 +10,7 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
-add_executable(exe exe.cpp)
+add_executable(future future.cpp)
 
 add_executable(async async.cpp)
 
@@ -19,6 +19,9 @@ add_executable(jthread jthread.cpp)
 add_executable(circularq circularq.cpp)
 
 install (TARGETS
-  exe
+  future
+  async
+  jthread
+  circularq
   DESTINATION lib/${PROJECT_NAME}
 )
