@@ -18,10 +18,16 @@ add_executable(jthread jthread.cpp)
 
 add_executable(circularq circularq.cpp)
 
+add_executable(move move.cpp)
+
+add_executable(coin coin.cpp)
+
 install (TARGETS
   future
   async
   jthread
   circularq
+  move
+  coin
   DESTINATION lib/${PROJECT_NAME}
 )

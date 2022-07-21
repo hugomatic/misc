@@ -138,7 +138,7 @@ public:
     {
         std::cout << "pop! ";
         if (count() == 0) {
-          std::cout << "Error" << std::endl;
+          std::cerr << "Error" << std::endl;
           pr();
           return T();
         }
@@ -148,13 +148,11 @@ public:
         if (count() == 0){
           newest =0;
           oldest = 0;
-          std::cout << r << " (last elem)" <<  std::endl;
           pr();
           return r;
         }
 
         oldest ++;
-        std::cout << "? oldest " << oldest <<  " buffer size " << buffer_size<< std::endl;
         if (oldest > buffer_size -1) {
           std::cout << "? reset" << std::endl;
           oldest = 0;
