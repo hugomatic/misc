@@ -4,6 +4,10 @@ import pybullet_data
 import math
 import cv2
 import numpy as np
+import os
+
+if not os.path.exists('test_img'):
+  os.mkdir('test_img')
 
 phyisicsClient = p.connect(p.DIRECT)# (p.GUI)#or p.DIRECT for non-graphical version
 p.setAdditionalSearchPath(pybullet_data.getDataPath()) #optionally
