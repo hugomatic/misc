@@ -24,6 +24,8 @@ add_executable(coin coin.cpp)
 
 add_executable(alien alien.cpp)
 
+add_executable(phone phone.cpp)
+
 install (TARGETS
   future
   async
@@ -32,5 +34,6 @@ install (TARGETS
   move
   coin
   alien
+  phone
   DESTINATION lib/${PROJECT_NAME}
 )
