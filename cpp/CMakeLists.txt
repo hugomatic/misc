@@ -22,6 +22,8 @@ add_executable(move move.cpp)
 
 add_executable(coin coin.cpp)
 
+add_executable(alien alien.cpp)
+
 install (TARGETS
   future
   async
@@ -29,5 +31,6 @@ install (TARGETS
   circularq
   move
   coin
+  alien
   DESTINATION lib/${PROJECT_NAME}
 )
