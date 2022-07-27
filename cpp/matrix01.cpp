@@ -139,7 +139,6 @@ void example(matrix_t mat) {
 }
 
 int main() {
-  cout << "!" << endl;
   example( { {{0,0,0}, {0,1,0},{1,1,1}} });
 
 }
