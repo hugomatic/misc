@@ -30,6 +30,8 @@ add_executable(interval interval.cpp)
 
 add_executable(matrix01 matrix01.cpp)
 
+add_executable(mine mine.cpp)
+
 install (TARGETS
   future
   async
@@ -41,5 +43,6 @@ install (TARGETS
   phone
   interval
   matrix01
+  mine
   DESTINATION lib/${PROJECT_NAME}
 )
