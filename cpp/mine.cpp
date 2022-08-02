@@ -35,19 +35,20 @@ void initMap(map_t &map, int bombCount) {
   }
 }
 
-void pr(map_t const &map, bool gameOver) {
-  using namespace std;
-  std::cout << "\n   ";
+
+void pr(std::ostream& os, map_t const &map, bool gameOver) {
+
+  os << "\n   ";
 
   for (size_t i=0; i < cols; ++i) {
-    std::cout << i % 10 << " ";
+    os << i % 10 << " ";
   }
 
-  std::cout << "\n";
+  os << "\n";
   int count = 0;
   for (auto &row : map) {
-    std::cout << std::setw(2) << std::setfill('0') << count;
-    std::cout << " ";
+    os << std::setw(2) << std::setfill('0') << count;
+    os << " ";
     count ++;
     for(size_t i=0; i < row.size(); ++i) { // std::cout << row.size() << std::endl;
       char c = row[i];
@@ -56,13 +57,16 @@ void pr(map_t const &map, bool gameOver) {
       if (!gameOver && c == 'x') {
         x = '_';
       }
-      cout << x << " ";
+      os << x << " ";
 
     }
-    cout << endl;
+    os << std::endl;
   }
 }
 
+void pr(map_t const &map, bool gameOver) {
+  pr(std::cout, map, gameOver);
+}
 
 std::vector<std::tuple<size_t, size_t> > getNeighbors(size_t r, size_t c) {
   std::vector<std::tuple<size_t, size_t> > positions;
@@ -133,6 +137,13 @@ bool click(map_t &map, size_t clickR, size_t clickC) {
   return false;
 }
 
+std::ostream& operator<<(std::ostream& os, const map_t& map)
+{
+    pr(os, map, false);
+    return os;
+}
+
+
 int main() {
   using namespace std;
   srand(1);
@@ -145,6 +156,7 @@ int main() {
     size_t c = 0;
     std:: cout << "enter row: ";
     std::cin >> r;
+    // print gameover board as a hint
     if (r > map.size() ) {
       pr(map, true);
       continue;
@@ -158,7 +170,6 @@ int main() {
       std::cout << "BOOM!! Game over" << std::endl;
       break;
     }
-    pr(map, false);
+    std::cout << map;
   }
-  //click(map, 1,3);
 }
