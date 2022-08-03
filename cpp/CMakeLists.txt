@@ -32,6 +32,8 @@ add_executable(matrix01 matrix01.cpp)
 
 add_executable(mine mine.cpp)
 
+add_executable(tree tree.cpp)
+
 install (TARGETS
   future
   async
@@ -44,5 +46,6 @@ install (TARGETS
   interval
   matrix01
   mine
+  tree
   DESTINATION lib/${PROJECT_NAME}
 )
