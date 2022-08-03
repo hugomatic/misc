@@ -1,7 +1,6 @@
 
 def partition(array, left, right, pivot):
 
-
   if left >= right:
     return
 

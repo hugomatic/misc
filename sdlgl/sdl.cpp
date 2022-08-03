@@ -86,12 +86,19 @@ void InitializeProgram() {
 void VertexSpecification() {
   const std::vector<GLfloat> vertexData {
     // x|r   y|g   z|b
-    -0.8f, -0.8f, 0.0f,  // vertex 1
-    1.0f, 0.0f, 0.0f,    // red
-    0.8f,  -0.8f, 0.0f,  // vertex 2
-    0.8f, 1.0f, 0.0f,    // green
-    0.0f, 0.8f, 0.0f,    // vertex 3
-    0.0f, 0.0f, 1.0f     // blue
+    -0.5f, -0.5f, 0.0f,  // left vertex
+     1.0f,  0.0f, 0.0f,  // red
+     0.5f, -0.5f, 0.0f,  // right vertex
+     0.0f,  1.0f, 0.0f,  // green
+    -0.5f,  0.5f, 0.0f,  // top vertex
+     0.0f,  0.0f, 1.0f,  // blue
+    // second triangle
+     0.5f, -0.5f, 0.0f,  // right vertex
+     0.0f,  1.0f, 0.0f,  // green
+     0.5f,  0.5f, 0.0f,  // top right
+     1.0f,  0.0f, 0.0f,  // red
+    -0.5f,  0.5f, 0.0f,  // top left
+     0.0f,  0.0f, 1.0f,  // blue
   };
 
   // generate VBA
@@ -245,6 +252,16 @@ void Input() {
       std::cout << "Goodbye!" << std::endl;
       gQuit = true;
     }
+    if (e.type == SDL_MOUSEBUTTONDOWN ) {
+      int x, y;
+      Uint32 buttons = SDL_GetMouseState(&x, &y);
+      if ((buttons & SDL_BUTTON_LMASK) != 0) {
+        double fx = 2 * double(x) / gScreenWidth - 1;
+        double fy = 2 * double(y) / gScreenHeight - 1;
+        bool hit = (fx > -0.5 ) && (fx < 0.5) && (fy > -0.5 && fy < 0.5);
+        std::cout << "left click! " << fx << ", " << fy << "hit: " << hit << std::endl;
+      }
+    }
   }
 }
 
@@ -261,7 +278,7 @@ void PreDraw() {
 void Draw() {
   glBindVertexArray(gVertexArrayObject);
   glBindBuffer(GL_ARRAY_BUFFER, gVertexBufferObject);
-  glDrawArrays(GL_TRIANGLES, 0, 3);
+  glDrawArrays(GL_TRIANGLES, 0, 6);
   glUseProgram(0);
 }
 

@@ -51,22 +51,7 @@ bool found(set<tuple<int,int> > const & visited, tuple<int,int> e) {
   bool r = found == visited.end();
   return r;
 }
-/*
-int closestZero_(matrix_t const& mat, int r, int c) {
-  set<tuple<int, int> > visited;
 
-  visited.insert({0,0});
-  visited.insert({1,1});
-
-  cout << "xx1 " << found(visited, {1,1} ) << endl;
-  cout << "xx0 " << found(visited, {0,1} ) << endl;
-  cout << "visited" << endl;
-  for (auto &[r,c]: visited) {
-    cout <<  "   " << r << ", " << c << endl;
-  }
-  return 42;
-}
-*/
 void pr(set<tuple<int,int> > const &visited) {
   cout << "visited list ";
   for (auto &[r,c]: visited) {
