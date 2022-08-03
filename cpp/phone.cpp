@@ -24,25 +24,20 @@ void add( std::vector<std::string> &mnems, std::string const & prefix,
       cout <<  " !!! "  << endl;
       return;
     }
-
     if (variations.size() == 1) {
       for (auto &variation: variations[0]) {
         string mnemonic =  prefix + variation;
-        cout << " >> " << mnemonic << endl;
         mnems.push_back(mnemonic);
       }
       return;
     }
-
     // remove one set of variations
     std::vector<std::vector<std::string>> vars;
     std::copy(variations.begin()+1,  variations.end(), std::back_inserter(vars));
-
     for (auto &variation: variations[0]) {
       string newPrefix =  prefix + variation;
       add(mnems, newPrefix, vars );
     }
-
 }
 
 std::vector<std::string> phoneMnemonics(std::string const &phoneNb) {
