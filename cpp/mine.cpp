@@ -139,7 +139,7 @@ std::tuple<bool, changes_t> click(map_t &map, size_t clickR, size_t clickC) {
           }
       }
       char v = '0' + bombs;
-      map[r][c] = v;
+      // map[r][c] = v;
       changes.push_back(std::make_tuple(r,c,v));
       // pr(map, true);
       if (bombs == 0) {
@@ -155,6 +155,13 @@ std::tuple<bool, changes_t> click(map_t &map, size_t clickR, size_t clickC) {
     }
   }
   return std::make_tuple(false, changes);
+}
+
+void applyChanges(map_t &map, const changes_t &changes) {
+
+  for(auto [r, c, v]: changes) {
+    map[r][c] = v;
+  }
 }
 
 std::ostream& operator<<(std::ostream& os, const map_t& map)
@@ -190,7 +197,7 @@ int main() {
     for (auto[r,c,v]: changes) {
       std::cout << "[" << r << "," << c << "] " << v << std::endl;
     }
-
+    applyChanges(map, changes);
     if (gameOver) {
       pr(map, true);
       std::cout << "BOOM!! Game over" << std::endl;
