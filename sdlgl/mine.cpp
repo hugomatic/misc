@@ -10,8 +10,8 @@
 // https://www.youtube.com/c/MikeShah
 
 // Globals
-int gScreenHeight = 600;
-int gScreenWidth = 800;
+int gScreenWidth = 1280;
+int gScreenHeight = 1280;
 
 SDL_Window *gGraphicsApplicationWindow = nullptr;
 SDL_GLContext gOpenGLContext;

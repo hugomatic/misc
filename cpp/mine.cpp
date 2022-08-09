@@ -13,6 +13,8 @@ const size_t cols =40;
 typedef std::array<char, cols> row_t;
 typedef std::array<row_t, rows> map_t;
 
+typedef std::vector< std::tuple<size_t, size_t, char> > changes_t;
+
 void initMap(map_t &map, int bombCount) {
   using namespace std;
 
@@ -39,10 +41,20 @@ void initMap(map_t &map, int bombCount) {
 void pr(std::ostream& os, map_t const &map, bool gameOver) {
 
   os << "\n   ";
+  for (size_t i=0; i < cols; ++i) {
+    char c = ' ';
+    if (i % 10 == 0) {
+      c = size_t(i / 10) + '0';
+    }
+    os << c << " ";
+  }
 
+
+  os << "\n   ";
   for (size_t i=0; i < cols; ++i) {
     os << i % 10 << " ";
   }
+
 
   os << "\n";
   int count = 0;
@@ -97,44 +109,52 @@ std::vector<std::tuple<size_t, size_t> > getNeighbors(size_t r, size_t c) {
   return positions;
 }
 
-bool click(map_t &map, size_t clickR, size_t clickC) {
+
+std::tuple<bool, changes_t> click(map_t &map, size_t clickR, size_t clickC) {
+
+  changes_t changes;
 
   std::cout << "Click [" <<  clickR << ", " << clickC <<"]\n";
   if (map[clickR][clickC] == 'x') {
     map[clickR][clickC] = '!';
-    return true;
+    return std::make_tuple(true, changes);
   }
 
-  std::vector<std::tuple<size_t, size_t> >toVisit;
-
+  std::vector<std::tuple<size_t, size_t>>toVisit;
+  std::set<std::tuple<size_t, size_t>> visited;
   toVisit.push_back(std::make_tuple(clickR, clickC));
   while (!toVisit.empty()) {
     auto [r,c] = toVisit.front();
     toVisit.erase(toVisit.begin());
-    if (map[r][c] != '_') {
+    if (visited.find(std::make_tuple(r,c)) != visited.end()) {
+      // already visited
       continue;
     }
-    else {
+    visited.insert(std::make_tuple(r,c));
+    {
       size_t bombs = 0;
       for (auto [rx, cx] : getNeighbors(r,c)) {
           if (map[rx][cx]  == 'x') {
             bombs ++;
           }
       }
-      map[r][c] = '0' + bombs;
+      char v = '0' + bombs;
+      map[r][c] = v;
+      changes.push_back(std::make_tuple(r,c,v));
       // pr(map, true);
       if (bombs == 0) {
         for (auto &p : getNeighbors(r,c)) {
           auto [rx, cx] = p;
           if (map[rx][cx]  == '_') {
-            if ( std::find(toVisit.begin(), toVisit.end(), p) == toVisit.end())
-              toVisit.push_back(p);
+              if (visited.find(p) == visited.end()) {
+                toVisit.push_back(p);
+              }
           }
         }
       }
     }
   }
-  return false;
+  return std::make_tuple(false, changes);
 }
 
 std::ostream& operator<<(std::ostream& os, const map_t& map)
@@ -165,7 +185,13 @@ int main() {
     std::cin >> c;
     std::cout << "click [" << r << "," << c << "]" <<  std::endl;
 
-    if ( click(map, r, c) ) {
+    auto [gameOver, changes] = click(map, r, c);
+
+    for (auto[r,c,v]: changes) {
+      std::cout << "[" << r << "," << c << "] " << v << std::endl;
+    }
+
+    if (gameOver) {
       pr(map, true);
       std::cout << "BOOM!! Game over" << std::endl;
       break;
