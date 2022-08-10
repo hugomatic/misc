@@ -157,17 +157,18 @@ std::tuple<bool, changes_t> click(map_t &map, size_t clickR, size_t clickC) {
   return std::make_tuple(false, changes);
 }
 
-void applyChanges(map_t &map, const changes_t &changes) {
-
-  for(auto [r, c, v]: changes) {
-    map[r][c] = v;
-  }
-}
-
 std::ostream& operator<<(std::ostream& os, const map_t& map)
 {
     pr(os, map, false);
     return os;
+}
+
+void applyChanges(map_t &map, const changes_t &changes) {
+
+  for(auto [r, c, v]: changes) {
+    map[r][c] = v;
+    std::cout << map;
+  }
 }
 
 
