@@ -272,59 +272,14 @@ void layout_t::color(char value, bool gameOver, double &r, double &g, double &b)
         g = 1.0;
         b = 1.0;
       break;
-    default:
+     case '!':
+        r = 0.0;
+        g = 0.0;
+        b = 0.0;
+      break;
+   default:
       std::cout << "unkown value [" << value << "]" << std::endl;
       assert(0);
   }
 }
 
-/*
-int main() {
-  using namespace std;
-  srand(1);
-  map_t map;
-  initMap(map, bombsCount);
-  pr(map, true);
-
-  while ( true) {
-    size_t r = 0;
-    size_t c = 0;
-    std:: cout << "enter row: ";
-    std::cin >> r;
-
-    // print gameover board as a hint
-    if (r > map.size()-1 ) {
-      pr(map, true);
-      continue;
-    }
-    std:: cout << "enter column: ";
-    std::cin >> c;
-    std::cout << "click [" << r << "," << c << "]" <<  std::endl;
-
-    auto [gameOver, changes] = click(map, r, c);
-
-    for (auto& [r,c,v]: changes) {
-      std::cout << "[" << r << "," << c << "] " << v << std::endl;
-    }
-
-    for(auto [r, c, v]: changes) {
-      map[r][c] = v;
-      std::cout << map;
-    }
-
-    if (gameOver) {
-      pr(map, true);
-      std::cout << "BOOM!! Game over" << std::endl;
-      break;
-    }
-
-    if (isWon(map)) {
-      pr(map, true);
-      std::cout << "Congratulations! You have won." << std::endl;
-      break;
-    }
-
-    std::cout << map;
-  }
-}
-*/

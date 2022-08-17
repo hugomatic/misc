@@ -13,8 +13,18 @@
 // https://www.youtube.com/c/MikeShah
 
 // Globals
+
+// mine map data
 map_t gMap;
+bool gGameOver = false;
+
+// list of changes to be made to the map
+changes_t gChanges;
 layout_t gLayout {rows, cols, -0.9, 0.9, 0.04, -0.04, 0.001, -0.001};
+
+// position and color of vertices
+std::vector<GLfloat> gVertexData;
+std::vector<GLuint> gIndexData;
 
 int gScreenWidth = 1280;
 int gScreenHeight = 1280;
@@ -118,100 +128,6 @@ void InitializeProgram() {
   GetOpenGLVersionInfo();
 }
 
-/*
-void VertexSpecification() {
-  const std::vector<GLfloat> vertexData {
-    // x|r   y|g   z|b
-    // 0 vertex
-    -0.5f, -0.5f, 0.0f,  // left vertex
-     1.0f,  0.0f, 0.0f,  // red
-    // 1 vertex
-     0.5f, -0.5f, 0.0f,  // right vertex
-     0.0f,  1.0f, 0.0f,  // green
-    // 2 vertex
-    -0.5f,  0.5f, 0.0f,  // top vertex
-     0.0f,  0.0f, 1.0f,  // blue
-    // second triangle
-    // 3 vertex
-     0.5f,  0.5f, 0.0f,  // top right
-     1.0f,  0.0f, 0.0f,  // red
-  };
-
-  const std::vector<GLuint> indexData {2,0,1,3,2,1};
-
-}
-*/
-
-
-/*
-
-void VertexSpecification() {
-
-  std::vector<GLfloat> vertexData;
-  std::vector<GLuint> indexData;
-
-  size_t i=0;
-  size_t quadCount = 0;
-  for (size_t r=0; r < rows; ++r) {
-    for (size_t c=0; c < cols; ++c) {
-
-      double tx, ty, z, bx, by;
-      z = 0;
-      gLayout.topLeft(r, c, tx, ty);
-      gLayout.bottomRight(r, c, bx, by);
-
-      char v = gMap[r][c];
-      double r, g, b;
-      bool gameOver = false;
-      gLayout.color(v,gameOver, r, g, b);
-      // left vertex
-      vertexData.push_back(tx);
-      vertexData.push_back(by);
-      vertexData.push_back(z);
-      // red
-      vertexData.push_back(r);
-      vertexData.push_back(g);
-      vertexData.push_back(b);
-      // right vertex
-      vertexData.push_back(bx);
-      vertexData.push_back(by);
-      vertexData.push_back(z);
-      // green
-      vertexData.push_back(0.0);
-      vertexData.push_back(1.0);
-      vertexData.push_back(0.0);
-      // top vertex
-      vertexData.push_back(tx);
-      vertexData.push_back(ty);
-      vertexData.push_back(z);
-      // blue
-      vertexData.push_back(0.0);
-      vertexData.push_back(0.0);
-      vertexData.push_back(1.0);
-      // top right vertex
-      vertexData.push_back(bx);
-      vertexData.push_back(ty);
-      vertexData.push_back(z);
-      // red
-      vertexData.push_back(r);
-      vertexData.push_back(g);
-      vertexData.push_back(b);
-
-      // indices
-      indexData.push_back(4 * quadCount + 2);
-      indexData.push_back(4 * quadCount + 0);
-      indexData.push_back(4 * quadCount + 1);
-      indexData.push_back(4 * quadCount + 3);
-      indexData.push_back(4 * quadCount + 2);
-      indexData.push_back(4 * quadCount + 1);
-
-      quadCount ++;
-    }
-  }
-
-
-*/
-
 void UpdateVertexData(map_t const& map,
                       std::vector<GLfloat> &vertexData,
                       std::vector<GLuint> &indexData)
@@ -227,8 +143,7 @@ void UpdateVertexData(map_t const& map,
 
       char v = gMap[r][c];
       double r, g, b;
-      bool gameOver = false;
-      gLayout.color(v,gameOver, r, g, b);
+      gLayout.color(v,gGameOver, r, g, b);
       // left vertex
       vertexData[quadCount * 24 + 0] = tx;
       vertexData[quadCount * 24 + 1] = by;
@@ -276,18 +191,16 @@ void UpdateVertexData(map_t const& map,
 }
 
 void VertexSpecification() {
-  std::vector<GLfloat> vertexData;
-  std::vector<GLuint> indexData;
   // 4 vertex per square with 6 data: x,y,z,r,g,b
-  vertexData.resize(cols * rows * (4 * 6));
+  gVertexData.resize(cols * rows * (4 * 6));
   // 2 triangles per square
-  indexData.resize(cols * rows * 6);
+  gIndexData.resize(cols * rows * 6);
 
   // fill the triangle and color  data from the mine map
-  UpdateVertexData(gMap, vertexData, indexData);
+  UpdateVertexData(gMap, gVertexData, gIndexData);
 
   // glDraw needs to know how many triangles to draw later
-  gTriangleCount = vertexData.size() / 4;
+  gTriangleCount = gVertexData.size() / 4;
 
   // generate VBA
   glGenVertexArrays(1, &gVertexArrayObject);
@@ -298,8 +211,8 @@ void VertexSpecification() {
   glGenBuffers(1, &gVertexBufferObject);
   glBindBuffer(GL_ARRAY_BUFFER, gVertexBufferObject);
   glBufferData(GL_ARRAY_BUFFER,
-               vertexData.size() * sizeof(GLfloat),
-               vertexData.data(),
+               gVertexData.size() * sizeof(GLfloat),
+               gVertexData.data(),
                GL_STATIC_DRAW);
 
   GLsizei stride = sizeof(GLfloat) * 6;
@@ -320,9 +233,8 @@ void VertexSpecification() {
   // setup Index Buffer Object (IBO or EBO)
   glGenBuffers(1, &gIndexBufferObject);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gIndexBufferObject);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexData.size() * sizeof(GLuint),
-               indexData.data(), GL_STATIC_DRAW);
-
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, gIndexData.size() * sizeof(GLuint),
+               gIndexData.data(), GL_STATIC_DRAW);
 }
 
 GLuint CompileShader(GLuint type, const std::string &source){
@@ -397,6 +309,9 @@ void Input() {
                   << "] [" << fx << ", " << fy << "] hit: " << hit;
         if (hit) {
           std::cout << " row/col [" << row << ", " << col << "]";
+          auto [gameOver, changes] = click(gMap, row, col);
+          gChanges = changes;
+          gGameOver = gameOver;
         }
         std::cout << std::endl;
         // bool hit = (fx > -0.5 ) && (fx < 0.5) && (fy > -0.5 && fy < 0.5);
@@ -407,6 +322,20 @@ void Input() {
 }
 
 void PreDraw() {
+
+  if (!gChanges.empty()) {
+    auto [r, c, v] = gChanges.front();
+    gChanges.pop_front();
+    gMap[r][c] = v;
+  }
+
+  UpdateVertexData(gMap, gVertexData, gIndexData);
+  glBindBuffer(GL_ARRAY_BUFFER, gVertexBufferObject);
+  glBufferSubData(GL_ARRAY_BUFFER,
+               0,
+               gVertexData.size() * sizeof(GLfloat),
+               gVertexData.data());
+
   glDisable(GL_DEPTH_TEST);
   glDisable(GL_CULL_FACE);
 
@@ -441,10 +370,7 @@ void Cleanup() {
 int main() {
 
   initMap(gMap, 120);
-  auto [gameOver, changes] = click(gMap, 39, 39);
-  for(auto [r, c, v]: changes) {
-    gMap[r][c] = v;
-  }
+
   std::cout << gMap;
   layout_t layout {rows, cols, -0.9, 0.9, 0.04, -0.04, 0.001, -0.001};
   std::cout << "\n\n";

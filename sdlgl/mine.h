@@ -3,12 +3,13 @@
 #include <iostream>
 #include <array>
 #include <tuple>
+#include <deque>
 
 const size_t rows=  40;
 const size_t cols = 40;
 
 typedef std::array<std::array<char, cols>, rows> map_t;
-typedef std::vector< std::tuple<size_t, size_t, char> > changes_t;
+typedef std::deque<std::tuple<size_t, size_t, char> > changes_t;
 
 void initMap(map_t &map, int bombCount);
 std::tuple<bool, changes_t> click(map_t &map, size_t clickR, size_t clickC);
