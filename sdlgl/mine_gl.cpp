@@ -297,6 +297,10 @@ void Input() {
       gQuit = true;
     }
     if (e.type == SDL_MOUSEBUTTONDOWN ) {
+      // can't click while animation is running
+      if (!gChanges.empty()) {
+        return;
+      }
       int x, y;
       Uint32 buttons = SDL_GetMouseState(&x, &y);
       if ((buttons & SDL_BUTTON_LMASK) != 0) {
@@ -314,19 +318,18 @@ void Input() {
           gGameOver = gameOver;
         }
         std::cout << std::endl;
-        // bool hit = (fx > -0.5 ) && (fx < 0.5) && (fy > -0.5 && fy < 0.5);
-        // std::cout << "left click! " << fx << ", " << fy << "hit: " << hit << std::endl;
       }
     }
   }
 }
 
 void PreDraw() {
-
-  if (!gChanges.empty()) {
-    auto [r, c, v] = gChanges.front();
-    gChanges.pop_front();
-    gMap[r][c] = v;
+  for(int i=0; i < 3; ++i) {
+    if (!gChanges.empty()) {
+      auto [r, c, v] = gChanges.front();
+      gChanges.pop_front();
+      gMap[r][c] = v;
+    }
   }
 
   UpdateVertexData(gMap, gVertexData, gIndexData);
