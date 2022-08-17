@@ -8,7 +8,7 @@ include_directories(sdlgl ${SDL2_INCLUDE_DIRS})
 add_subdirectory(glad/)
 
 add_executable(sdlgl sdl.cpp)
-add_executable(mine mine.cpp)
+add_executable(mine mine_gl.cpp mine.cpp)
 
 target_link_libraries(sdlgl
                       PRIVATE glad

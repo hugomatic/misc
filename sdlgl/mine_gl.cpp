@@ -4,14 +4,22 @@
 #include <vector>
 #include <fstream>
 #include <filesystem>
+#include <tuple>
+
+#include "mine.h"
 
 // see
 // https://docs.gl
 // https://www.youtube.com/c/MikeShah
 
 // Globals
+map_t gMap;
+layout_t gLayout {rows, cols, -0.9, 0.9, 0.04, -0.04, 0.001, -0.001};
+
 int gScreenWidth = 1280;
 int gScreenHeight = 1280;
+
+int gTriangleCount = 6;
 
 SDL_Window *gGraphicsApplicationWindow = nullptr;
 SDL_GLContext gOpenGLContext;
@@ -24,6 +32,7 @@ GLuint gVertexBufferObject = 0;
 GLuint gVertexBufferObject2 = 0;
 // IBO store vertex indices when drawing
 GLuint gIndexBufferObject = 0;
+
 
 // Program Object (for shaders) ie graphics pipeline
 GLuint gGraphicsPipelineShaderProgram = 0;
@@ -91,7 +100,7 @@ void InitializeProgram() {
   SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
   SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 2);
   int flags = SDL_WINDOW_OPENGL;
-  gGraphicsApplicationWindow = SDL_CreateWindow("OpenGL Window", 0, 0,
+  gGraphicsApplicationWindow = SDL_CreateWindow("Mine sweeper", 0, 0,
     gScreenWidth, gScreenHeight, flags);
   if (gGraphicsApplicationWindow == nullptr) {
     puts("SDL_CreateWindow error!");
@@ -109,6 +118,7 @@ void InitializeProgram() {
   GetOpenGLVersionInfo();
 }
 
+/*
 void VertexSpecification() {
   const std::vector<GLfloat> vertexData {
     // x|r   y|g   z|b
@@ -128,6 +138,156 @@ void VertexSpecification() {
   };
 
   const std::vector<GLuint> indexData {2,0,1,3,2,1};
+
+}
+*/
+
+
+/*
+
+void VertexSpecification() {
+
+  std::vector<GLfloat> vertexData;
+  std::vector<GLuint> indexData;
+
+  size_t i=0;
+  size_t quadCount = 0;
+  for (size_t r=0; r < rows; ++r) {
+    for (size_t c=0; c < cols; ++c) {
+
+      double tx, ty, z, bx, by;
+      z = 0;
+      gLayout.topLeft(r, c, tx, ty);
+      gLayout.bottomRight(r, c, bx, by);
+
+      char v = gMap[r][c];
+      double r, g, b;
+      bool gameOver = false;
+      gLayout.color(v,gameOver, r, g, b);
+      // left vertex
+      vertexData.push_back(tx);
+      vertexData.push_back(by);
+      vertexData.push_back(z);
+      // red
+      vertexData.push_back(r);
+      vertexData.push_back(g);
+      vertexData.push_back(b);
+      // right vertex
+      vertexData.push_back(bx);
+      vertexData.push_back(by);
+      vertexData.push_back(z);
+      // green
+      vertexData.push_back(0.0);
+      vertexData.push_back(1.0);
+      vertexData.push_back(0.0);
+      // top vertex
+      vertexData.push_back(tx);
+      vertexData.push_back(ty);
+      vertexData.push_back(z);
+      // blue
+      vertexData.push_back(0.0);
+      vertexData.push_back(0.0);
+      vertexData.push_back(1.0);
+      // top right vertex
+      vertexData.push_back(bx);
+      vertexData.push_back(ty);
+      vertexData.push_back(z);
+      // red
+      vertexData.push_back(r);
+      vertexData.push_back(g);
+      vertexData.push_back(b);
+
+      // indices
+      indexData.push_back(4 * quadCount + 2);
+      indexData.push_back(4 * quadCount + 0);
+      indexData.push_back(4 * quadCount + 1);
+      indexData.push_back(4 * quadCount + 3);
+      indexData.push_back(4 * quadCount + 2);
+      indexData.push_back(4 * quadCount + 1);
+
+      quadCount ++;
+    }
+  }
+
+
+*/
+
+void UpdateVertexData(map_t const& map,
+                      std::vector<GLfloat> &vertexData,
+                      std::vector<GLuint> &indexData)
+{
+  size_t quadCount = 0;
+  for (size_t r=0; r < rows; ++r) {
+    for (size_t c=0; c < cols; ++c) {
+
+      double tx, ty, z, bx, by;
+      z = 0;
+      gLayout.topLeft(r, c, tx, ty);
+      gLayout.bottomRight(r, c, bx, by);
+
+      char v = gMap[r][c];
+      double r, g, b;
+      bool gameOver = false;
+      gLayout.color(v,gameOver, r, g, b);
+      // left vertex
+      vertexData[quadCount * 24 + 0] = tx;
+      vertexData[quadCount * 24 + 1] = by;
+      vertexData[quadCount * 24 + 2] = z;
+      // red
+      vertexData[quadCount * 24 + 3] = r;
+      vertexData[quadCount * 24 + 4] = g;
+      vertexData[quadCount * 24 + 5] = b;
+      // right vertex
+      vertexData[quadCount * 24 + 6] = bx;
+      vertexData[quadCount * 24 + 7] = by;
+      vertexData[quadCount * 24 + 8] = z;
+      // green
+      vertexData[quadCount * 24 + 9] = 0.0;
+      vertexData[quadCount * 24 + 10] = 1.0;
+      vertexData[quadCount * 24 + 11] = 0.0;
+      // top vertex
+      vertexData[quadCount * 24 + 12] = tx;
+      vertexData[quadCount * 24 + 13] = ty;
+      vertexData[quadCount * 24 + 14] = z;
+      // blue
+      vertexData[quadCount * 24 + 15] = 0.0;
+      vertexData[quadCount * 24 + 16] = 0.0;
+      vertexData[quadCount * 24 + 17] = 1.0;
+      // top right vertex
+      vertexData[quadCount * 24 + 18] = bx;
+      vertexData[quadCount * 24 + 19] = ty;
+      vertexData[quadCount * 24 + 20] = z;
+      // red
+      vertexData[quadCount * 24 + 21] = r;
+      vertexData[quadCount * 24 + 22] = g;
+      vertexData[quadCount * 24 + 23] = b;
+
+      // indices
+      indexData[quadCount * 6 + 0] = 4 * quadCount + 2;
+      indexData[quadCount * 6 + 1] = 4 * quadCount + 0;
+      indexData[quadCount * 6 + 2] = 4 * quadCount + 1;
+      indexData[quadCount * 6 + 3] = 4 * quadCount + 3;
+      indexData[quadCount * 6 + 4] = 4 * quadCount + 2;
+      indexData[quadCount * 6 + 5] = 4 * quadCount + 1;
+
+      quadCount ++;
+    }
+  }
+}
+
+void VertexSpecification() {
+  std::vector<GLfloat> vertexData;
+  std::vector<GLuint> indexData;
+  // 4 vertex per square with 6 data: x,y,z,r,g,b
+  vertexData.resize(cols * rows * (4 * 6));
+  // 2 triangles per square
+  indexData.resize(cols * rows * 6);
+
+  // fill the triangle and color  data from the mine map
+  UpdateVertexData(gMap, vertexData, indexData);
+
+  // glDraw needs to know how many triangles to draw later
+  gTriangleCount = vertexData.size() / 4;
 
   // generate VBA
   glGenVertexArrays(1, &gVertexArrayObject);
@@ -163,67 +323,6 @@ void VertexSpecification() {
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexData.size() * sizeof(GLuint),
                indexData.data(), GL_STATIC_DRAW);
 
-}
-
-void VertexSpecification_using_2_arrays() {
-  // lives on the cpu
-  const std::vector<GLfloat> vertexPosition {
-    // x    y    z
-    -0.8f, -0.8f, 0.0f, // vertex 1
-    0.8f,  -0.8f, 0.0f, // vertex 2
-    0.0f, 0.8f, 0.0f    // vertex 3
-  };
-
-  const std::vector<GLfloat> vertexColor {
-    // r    g    b
-    1.0f, 0.0f, 0.0f, // red
-    0.8f, 1.0f, 0.0f, // green
-    0.0f, 0.0f, 1.0f  // blue
-  };
-
-
-  // generate VBA
-  glGenVertexArrays(1, &gVertexArrayObject);
-  glBindVertexArray(gVertexArrayObject);
-
-  // start generating VBOs
-  // position
-  glGenBuffers(1, &gVertexBufferObject);
-  glBindBuffer(GL_ARRAY_BUFFER, gVertexBufferObject);
-  glBufferData(GL_ARRAY_BUFFER,
-               vertexPosition.size() * sizeof(GLfloat),
-               vertexPosition.data(),
-               GL_STATIC_DRAW);
-
-  glEnableVertexAttribArray(0); // 0 is the position (only one attribute)
-  glVertexAttribPointer(0, // index
-                        3, // size (3, ie x,y,z)
-                        GL_FLOAT, // type
-                        GL_FALSE, // normalized? True could work
-                        0, // space in between attributes
-                        (void*)0); // offset?
-
-  // color
-  glGenBuffers(1, &gVertexBufferObject2);
-  glBindBuffer(GL_ARRAY_BUFFER, gVertexBufferObject2);
-  glBufferData(GL_ARRAY_BUFFER,
-               vertexColor.size() * sizeof(GLfloat),
-               vertexColor.data(),
-               GL_STATIC_DRAW);
-
-  glEnableVertexAttribArray(1);
-  glVertexAttribPointer(1,
-                        3, // r,g,b
-                        GL_FLOAT,
-                        GL_FALSE,
-                        0,
-                        (void*)0);
-
-
-  // cleanup
-  glBindVertexArray(0);
-  glDisableVertexAttribArray(0);
-  glDisableVertexAttribArray(1);
 }
 
 GLuint CompileShader(GLuint type, const std::string &source){
@@ -290,9 +389,18 @@ void Input() {
       Uint32 buttons = SDL_GetMouseState(&x, &y);
       if ((buttons & SDL_BUTTON_LMASK) != 0) {
         double fx = 2 * double(x) / gScreenWidth - 1;
-        double fy = 2 * double(y) / gScreenHeight - 1;
-        bool hit = (fx > -0.5 ) && (fx < 0.5) && (fy > -0.5 && fy < 0.5);
-        std::cout << "left click! " << fx << ", " << fy << "hit: " << hit << std::endl;
+        double fy = -2 * double(y) / gScreenHeight + 1;
+        size_t row = 0, col = 0;
+        bool hit = gLayout.inside(fx, fy, row, col);
+        std::cout << "left click! ["
+                  << x << ", " << y
+                  << "] [" << fx << ", " << fy << "] hit: " << hit;
+        if (hit) {
+          std::cout << " row/col [" << row << ", " << col << "]";
+        }
+        std::cout << std::endl;
+        // bool hit = (fx > -0.5 ) && (fx < 0.5) && (fy > -0.5 && fy < 0.5);
+        // std::cout << "left click! " << fx << ", " << fy << "hit: " << hit << std::endl;
       }
     }
   }
@@ -311,7 +419,7 @@ void PreDraw() {
 void Draw() {
   glBindVertexArray(gVertexArrayObject);
   glBindBuffer(GL_ARRAY_BUFFER, gVertexBufferObject);
-  glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+  glDrawElements(GL_TRIANGLES, gTriangleCount, GL_UNSIGNED_INT, 0);
   glUseProgram(0);
 }
 
@@ -331,6 +439,31 @@ void Cleanup() {
 
 
 int main() {
+
+  initMap(gMap, 120);
+  auto [gameOver, changes] = click(gMap, 39, 39);
+  for(auto [r, c, v]: changes) {
+    gMap[r][c] = v;
+  }
+  std::cout << gMap;
+  layout_t layout {rows, cols, -0.9, 0.9, 0.04, -0.04, 0.001, -0.001};
+  std::cout << "\n\n";
+  double x, y;
+  layout.topLeft(0,0, x,y);
+  std::cout << "grid[0][0] top left [" << x << "," << y << "]" << std::endl;
+  layout.bottomRight(0,0, x,y);
+  std::cout << "grid[0][0] bottom left [" << x << "," << y << "]" << std::endl;
+  layout.topLeft(rows-1,cols-1, x,y);
+  std::cout << "grid[" << (rows-1) << "][" << cols -1
+            <<  "] top left [" << x << "," << y << "]" << std::endl;
+  layout.bottomRight(rows-1, cols - 1 , x,y);
+  std::cout << "grid[-1][-1] bottom left [" << x << "," << y << "]" << std::endl;
+
+  size_t r,c;
+  bool b = layout.inside(0.7, -0.7, r, c);
+  std::cout << "[0.7, -0.7] inside " << b << " row " << r << ", col " << c << std::endl;
+
+  std::cout << "\n";
   InitializeProgram();
   VertexSpecification();
   CreateGraphicsPipeline();
