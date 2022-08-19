@@ -5,6 +5,7 @@
 #include <fstream>
 #include <filesystem>
 #include <tuple>
+#include <chrono>
 
 #include "mine.h"
 
@@ -296,6 +297,7 @@ void Input() {
       std::cout << "Goodbye!" << std::endl;
       gQuit = true;
     }
+
     if (e.type == SDL_MOUSEBUTTONDOWN ) {
       // can't click while animation is running
       if (!gChanges.empty()) {
@@ -324,7 +326,8 @@ void Input() {
 }
 
 void PreDraw() {
-  for(int i=0; i < 3; ++i) {
+
+  for(int i=0; i < 2; ++i) {
     if (!gChanges.empty()) {
       auto [r, c, v] = gChanges.front();
       gChanges.pop_front();
@@ -333,6 +336,7 @@ void PreDraw() {
   }
 
   UpdateVertexData(gMap, gVertexData, gIndexData);
+
   glBindBuffer(GL_ARRAY_BUFFER, gVertexBufferObject);
   glBufferSubData(GL_ARRAY_BUFFER,
                0,
@@ -356,7 +360,19 @@ void Draw() {
 }
 
 void MainLoop() {
+
+  auto t0 = std::chrono::high_resolution_clock::now();
+  int frames = 0;
   while(!gQuit) {
+    auto t1 = std::chrono::high_resolution_clock::now();
+    frames ++;
+    auto secs = std::chrono::duration_cast<std::chrono::duration<double>>(t1 - t0);
+    if (secs.count() >= 1.0)  {
+      double ftime = secs.count() / frames;
+      std::cout << frames << " frames in " << secs.count() << " secs " << ftime << std::endl;
+      frames = 0;
+      t0 = t1;
+    }
     Input();
     PreDraw();
     Draw();
