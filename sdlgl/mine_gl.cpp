@@ -18,7 +18,7 @@
 // mine map data
 map_t gMap;
 bool gGameOver = false;
-
+bool gShowFps = false;
 // list of changes to be made to the map
 changes_t gChanges;
 layout_t gLayout {rows, cols, -0.9, 0.9, 0.04, -0.04, 0.001, -0.001};
@@ -290,6 +290,14 @@ void CreateGraphicsPipeline() {
     fragmentShaderSource);
 }
 
+void ShowMenu() {
+  std::cout << "\n"
+            << "H -show this menu\n"
+            << "F -show timing information\n"
+            << "C -show map with bombs\n";
+
+}
+
 void Input() {
   SDL_Event e;
   while (SDL_PollEvent(&e) !=0) {
@@ -297,7 +305,21 @@ void Input() {
       std::cout << "Goodbye!" << std::endl;
       gQuit = true;
     }
-
+    if (e.type == SDL_KEYUP) {
+      std::string keyName = SDL_GetKeyName(e.key.keysym.sym);
+      if (keyName == "F") {
+        gShowFps = true;
+      }
+      else if (keyName == "C") {
+        std::cout << gMap;
+      }
+      else if (keyName == "H") {
+        ShowMenu();
+      }
+      else {
+        std::cout << "KEY down: " << keyName <<std::endl;
+      }
+    }
     if (e.type == SDL_MOUSEBUTTONDOWN ) {
       // can't click while animation is running
       if (!gChanges.empty()) {
@@ -310,16 +332,12 @@ void Input() {
         double fy = -2 * double(y) / gScreenHeight + 1;
         size_t row = 0, col = 0;
         bool hit = gLayout.inside(fx, fy, row, col);
-        std::cout << "left click! ["
-                  << x << ", " << y
-                  << "] [" << fx << ", " << fy << "] hit: " << hit;
         if (hit) {
-          std::cout << " row/col [" << row << ", " << col << "]";
+          std::cout << "click ["<< row << ", " << col << "]"  << std::endl;
           auto [gameOver, changes] = click(gMap, row, col);
           gChanges = changes;
           gGameOver = gameOver;
         }
-        std::cout << std::endl;
       }
     }
   }
@@ -369,7 +387,12 @@ void MainLoop() {
     auto secs = std::chrono::duration_cast<std::chrono::duration<double>>(t1 - t0);
     if (secs.count() >= 1.0)  {
       double ftime = secs.count() / frames;
-      std::cout << frames << " frames in " << secs.count() << " secs " << ftime << std::endl;
+      // has the user pressed the "F" key?
+      if (gShowFps) {
+        std::cout << frames << " frames in " << secs.count()
+                  << " secs " << ftime << std::endl;
+        gShowFps = false;
+      }
       frames = 0;
       t0 = t1;
     }
@@ -387,31 +410,15 @@ void Cleanup() {
 
 
 int main() {
-
   initMap(gMap, 120);
-
-  std::cout << gMap;
   layout_t layout {rows, cols, -0.9, 0.9, 0.04, -0.04, 0.001, -0.001};
-  std::cout << "\n\n";
-  double x, y;
-  layout.topLeft(0,0, x,y);
-  std::cout << "grid[0][0] top left [" << x << "," << y << "]" << std::endl;
-  layout.bottomRight(0,0, x,y);
-  std::cout << "grid[0][0] bottom left [" << x << "," << y << "]" << std::endl;
-  layout.topLeft(rows-1,cols-1, x,y);
-  std::cout << "grid[" << (rows-1) << "][" << cols -1
-            <<  "] top left [" << x << "," << y << "]" << std::endl;
-  layout.bottomRight(rows-1, cols - 1 , x,y);
-  std::cout << "grid[-1][-1] bottom left [" << x << "," << y << "]" << std::endl;
 
-  size_t r,c;
-  bool b = layout.inside(0.7, -0.7, r, c);
-  std::cout << "[0.7, -0.7] inside " << b << " row " << r << ", col " << c << std::endl;
-
-  std::cout << "\n";
   InitializeProgram();
   VertexSpecification();
   CreateGraphicsPipeline();
+
+  ShowMenu();
+
   MainLoop();
   Cleanup();
   return 0;
