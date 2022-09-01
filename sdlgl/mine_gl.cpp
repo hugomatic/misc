@@ -9,7 +9,11 @@
 
 #include "mine.h"
 
-// see
+// textures
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
+//
 // https://docs.gl
 // https://www.youtube.com/c/MikeShah
 
@@ -238,6 +242,22 @@ void VertexSpecification() {
                gIndexData.data(), GL_STATIC_DRAW);
 }
 
+void LoadTextures() {
+  std::string filename("../textures/texture.png");
+
+  int w;
+  int h;
+  int comp;
+  unsigned char* image = stbi_load(filename.c_str(), &w, &h, &comp, STBI_rgb_alpha);
+
+  if(image == nullptr){
+      throw(std::string("Failed to load texture"));
+  }
+  std::cout << "loaded texture: " << filename
+    << " w: " << w << ", " << "h: " << h
+    << std::endl;
+}
+
 GLuint CompileShader(GLuint type, const std::string &source){
   GLuint shaderObject = 0;
   if (type == GL_VERTEX_SHADER) {
@@ -270,11 +290,11 @@ GLuint CompileShader(GLuint type, const std::string &source){
 GLuint CreateShaderProgram(const std::string &vertexShaderSource,
                          const std::string &fragmentShaderSource) {
   GLuint programObject = glCreateProgram();
-  GLuint myVertexShader = CompileShader(GL_VERTEX_SHADER, vertexShaderSource);
-  GLuint myFragmentShader = CompileShader(GL_FRAGMENT_SHADER, fragmentShaderSource);
+  GLuint vertexShader = CompileShader(GL_VERTEX_SHADER, vertexShaderSource);
+  GLuint fragShader = CompileShader(GL_FRAGMENT_SHADER, fragmentShaderSource);
 
-  glAttachShader(programObject, myVertexShader);
-  glAttachShader(programObject, myFragmentShader);
+  glAttachShader(programObject, vertexShader);
+  glAttachShader(programObject, fragShader);
   glLinkProgram(programObject);
 
   // validate the program
@@ -415,6 +435,7 @@ int main() {
 
   InitializeProgram();
   VertexSpecification();
+  LoadTextures();
   CreateGraphicsPipeline();
 
   ShowMenu();
