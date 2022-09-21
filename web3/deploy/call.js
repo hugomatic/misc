@@ -28,6 +28,12 @@ async function main() {
     })
   // done
   console.log(`Mined in block ${receipt.blockNumber}`)
+
+  console.log('\nEvents:')
+  const opts ={fromBlock: receipt.blockNumber-3000, toBlock: 'latest', filter: {}}
+  contract.getPastEvents('Echo', opts)
+    .then(results => console.log(results))
+    .catch(err => {throw err})
 }
 
 dotenv.config()
