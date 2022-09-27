@@ -2,10 +2,12 @@ const Web3 = require('web3')
 const fs = require('fs')
 const dotenv = require('dotenv')
 
-const jsonData = fs.readFileSync('Demo.json')
-const { abi, bytecode } = JSON.parse(jsonData)
+async function deploy_contract(contract_json) {
+  dotenv.config()
 
-async function main() {
+  const jsonData = fs.readFileSync(contract_json)
+  const { abi, bytecode } = JSON.parse(jsonData)
+
   const network = process.env.POLYGON_NETWORK
   const web3 = new Web3(
     new Web3.providers.HttpProvider(
@@ -37,10 +39,21 @@ async function main() {
   console.log(`Contract deployed!`)
   console.log(`Add to the .env file to store contract address:`)
   console.log(`DEMO_CONTRACT = "${deployedContract.options.address}"`)
+
+  return deployedContract.options.address
 }
 
-dotenv.config()
+async function main() {
+  console.log(process.argv);
+  contract_json = process.argv[2]
+  console.log(`Deploying ${contract_json}`)
+
+  const address = await deploy_contract(contract_json)
+  console.log(`Contract deployed at address "${address}"`)
+}
+
 if (typeof require !== 'undefined' && require.main === module) {
-  main().then(() => process.exit(0))
+  // deploy_contract(contract_json).then(() => process.exit(0))
+  main().then(()=> process.exit(0))
 }
 

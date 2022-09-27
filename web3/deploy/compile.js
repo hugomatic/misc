@@ -1,12 +1,12 @@
 const fs = require('fs').promises
 const solc = require('solc')
 
-async function main() {
-  const sourceCode = await fs.readFile('Demo.sol', 'utf8')
+async function compile_contract(contract_path, output_json) {
+  const sourceCode = await fs.readFile(contract_path, 'utf8')
   const { abi, bytecode } = compile(sourceCode, 'Demo')
   // store in json
   const artifact = JSON.stringify({ abi, bytecode }, null, 2)
-  await fs.writeFile('Demo.json', artifact)
+  await fs.writeFile(output_json, artifact)
 }
 
 function compile( sourceCode, contractName) {
@@ -19,11 +19,12 @@ function compile( sourceCode, contractName) {
   const output = solc.compile(JSON.stringify(input))
   const artifact = JSON.parse(output).contracts.main[contractName]
 
+  console.log('contract compiled')
   return {
     abi: artifact.abi,
     bytecode: artifact.evm.bytecode.object
   }
 }
 
-main().then(() => process.exit(0))
+compile_contract('Demo.sol', 'Demo.json').then(() => process.exit(0))
 
