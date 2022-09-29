@@ -1,7 +1,7 @@
 const Web3 = require('web3')
 const fs = require('fs')
 const dotenv = require('dotenv')
-const compile = require('./compile_oz')
+const compile = require('./compile')
 
 async function deploy_contract(contractPath) {
   dotenv.config()
@@ -43,7 +43,7 @@ async function deploy_contract(contractPath) {
 async function main() {
   console.log(process.argv);
   if (process.argv.length != 3) {
-    console.log('node deploy.js ./O2club1.sol')
+    console.log('node deploy.js ./contract.sol')
     return -1
   }
   contractPath = process.argv[2]

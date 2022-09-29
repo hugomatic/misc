@@ -1,12 +1,12 @@
 const fs = require('fs')
 const Web3 = require('web3')
 const dotenv = require('dotenv')
-const compile = require('./compile_oz')
+const compile = require('./compile')
 // load contract abi
 
 dotenv.config()
 
-const contractInstance = compile.instantiateContract('./O2club1.sol')
+const contractInstance = compile.instantiateContract(process.env.CONTRACT_SRC)
 const web3 = new Web3 (
   new Web3.providers.HttpProvider(
     `https://${process.env.POLYGON_NETWORK}.infura.io/v3/${process.env.INFURA_API_KEY}`)
@@ -49,7 +49,7 @@ async function mint(to, amount) {
   return {
     block: receipt.blockNumber,
     url: txUrl,
-    receipt: receipt
+    contract: process.env.CONTRACT_SRC
   }
 }
 
@@ -98,14 +98,14 @@ async function transfer(to, amount) {
     })
   // done
   console.log(
-    `tx "transfer" [to: ${to}, amount: ${amount}] Mined in block ${receipt.blockNumber}`
+    `tx "transfer" [to: ${to}, amount: ${amount}] Mined in block ${receipt.blockNumber}`,
     ` ${txUrl}`
   )
 
   return {
     block: receipt.blockNumber,
     url: txUrl,
-    receipt: receipt
+    contract: process.env.CONTRACT_SRC 
   }
 
   //  .then(results => console.log(results))
@@ -153,7 +153,7 @@ Usage:
 
 ex:
 
-node erc20token.js 0x964Db2077df70FcE54F91F03F277b46088999B8a 1000000000000000000
+node erc20token.js send 0x964Db2077df70FcE54F91F03F277b46088999B8a 1000000000000000000
 `)
 }
 
@@ -166,8 +166,6 @@ async function main() {
   const cmd = process.argv[2]
   const to = process.argv[3]
 
-
-  // const { abi } = JSON.parse(fs.readFileSync(contract_json));
   let results = null
   if (cmd == "transfer") {
     const amount = process.argv[4]
