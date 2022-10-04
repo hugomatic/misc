@@ -1,8 +1,18 @@
-const fs = require('fs')
-const Web3 = require('web3')
-const dotenv = require('dotenv')
-const compile = require('./compile')
-// load contract abi
+import fs from 'fs'
+import Web3 from 'web3'
+import dotenv from 'dotenv'
+import compile from './compile.js'
+
+export default {
+  transfer,
+  mint,
+  balanceOf,
+  totalSupply,
+  symbol,
+  name,
+  getContract,
+  getEvents
+}
 
 dotenv.config()
 
@@ -29,10 +39,8 @@ function getContract() {
 
 // wrapper for the token mint function (gas tx fees apply)
 async function mint(to, amount) {
-
   const tx = contract.methods.mint( to, amount)
   const gas = await tx.estimateGas({from: signer.address})
-
   let txUrl = ""
   const receipt = await tx.send({
       from: signer.address,
@@ -60,6 +68,7 @@ async function balanceOf(account) {
   return result
 }
 
+
 // wrapper for totalSupply (free call)
 async function totalSupply() {
   const msg = contract.methods.totalSupply()
@@ -83,7 +92,6 @@ async function name() {
 
 // wrapper for token transfer (gas tx fees apply)
 async function transfer(to, amount) {
-
   const tx = contract.methods.transfer( to, amount)
   const gas = await tx.estimateGas({from: signer.address})
   let txUrl = ""
@@ -105,11 +113,8 @@ async function transfer(to, amount) {
   return {
     block: receipt.blockNumber,
     url: txUrl,
-    contract: process.env.CONTRACT_SRC 
+    contract: process.env.CONTRACT_SRC
   }
-
-  //  .then(results => console.log(results))
-  //  .catch(err => {throw err})
 }
 
 // look in the blockchain for latest events (free call).
@@ -127,19 +132,6 @@ async function getEvents(event_name, nbOfBlocks) {
   return past_events
 }
 
-module.exports = {
-  transfer,
-  mint,
-  balanceOf,
-  totalSupply,
-  symbol,
-  name,
-  getContract,
-  getEvents
-}
-
-// main()
-
 function usage() {
  console.log(`
 
@@ -156,6 +148,7 @@ ex:
 node erc20token.js send 0x964Db2077df70FcE54F91F03F277b46088999B8a 1000000000000000000
 `)
 }
+
 
 async function main() {
   console.log(process.argv);
@@ -196,6 +189,7 @@ async function main() {
 }
 
 
+
 if (typeof require !== 'undefined' && require.main === module) {
   // deploy_contract(contract_json).then(() => process.exit(0))
   main().then(()=> process.exit(0))
@@ -229,3 +223,4 @@ if (typeof require !== 'undefined' && require.main === module) {
 //  'RoleGranted(bytes32,address,address)',
 //  'RoleRevoked(bytes32,address,address)',
 //  'Transfer(address,address,uint256)',
+

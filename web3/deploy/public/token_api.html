@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+
+<style>
+
+.response{
+  border: 2px solid red;
+  width:50%;
+  display:block;
+}
+
+.doc{
+  border: 2px solid green;
+  display:block;
+  font-family: Consolas,"courier new";
+  color: blue;
+  background-color: #f1f1f1;
+  padding: 2px;
+  font-size: 80%;
+  white-space: pre;
+}
+
+</style>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Crypto bridge API</title>
+
+</head>
+
+<body>
+
+<h1>Crypto bridge</h1>
+
+<h1>Free calls</h1>
+
+<h2>Contract info</h2>
+<button onclick=contractInfo()>Get Info</button>
+<div id="contractInfoDiv" class="response"></div>
+
+<h2>Contract name</h2>
+<button onclick=contractName()>Get Name</button>
+<div id="nameDiv" class="response"></div>
+
+<h2>Symbol</h2>
+<button onclick=symbol()>Get Name</button>
+<div id="symbolDiv" class="response"></div>
+
+
+<h2>Total supply</h2>
+<button onclick=totalSupply()>Get Name</button>
+<div id="totalSupplyDiv" class="response"></div>
+
+<h2>Token balanceOf</h2>
+  <div class="doc", id="balanceOfDocDiv"></div>
+  <label>Account:</label><input id="balanceOfAccountInput"></input>
+    <button onclick=balanceOfClick()>Get balance</button>
+  <div id="balanceOfDiv" class="response"></div>
+
+<h2>Events</h2>
+  <ul>
+    <li>Approval</li>
+    <li>RoleAdminChanged(bytes32,bytes32,bytes32)</li>
+    <li>RoleGranted(bytes32,address,address)</li>
+    <li>RoleRevoked(bytes32,address,address)</li>
+    <li>Transfer(address,address,uint256)</li>
+  </ul>
+TBD
+
+<h1>Tx with fees (tx must be mined)</h1>
+
+<h2>Mint</h2>
+
+<label>Amount:</label><input id="mintAmountInput"></input>
+  <button onclick=mintClick()>Mint</button>
+
+<h2>Transfer token</h2>
+  <label>To account:</label><input id="transferToInput"></input>
+  <label>Amount:</label><input id="transferAmountInput"></input>
+  <button onclick=transferClick()>Transfer</button>
+  <div id="transferDiv" class="response"></div>
+
+<script type="text/javascript">
+
+  const contractInfo = async () => {
+    const opts = {
+      'method': 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    }
+    const res = await fetch('/contract', opts)
+    const resBody = await res.json()
+    const text = JSON.stringify(resBody, null, 2)
+    document.getElementById("contractInfoDiv").innerText = text
+  }
+
+  const contractName = async () => {
+    const opts = {
+      'method': 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    }
+    const res = await fetch('/name', opts)
+    const text = await res.text()
+    document.getElementById("nameDiv").innerText = text
+  }
+
+  const symbol = async () => {
+    const opts = {
+      'method': 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    }
+    const res = await fetch('/symbol', opts)
+    const text = await res.text()
+    document.getElementById("symbolDiv").innerText = text
+  }
+
+  const totalSupply = async () => {
+    const opts = {
+      'method': 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    }
+    const res = await fetch('/totalSupply', opts)
+    const text = await res.text()
+    document.getElementById("totalSupplyDiv").innerText = text
+  }
+
+  // 1 get parameters from UI
+  // 2 call the balanceOf function
+  // 3 show the results
+  const balanceOfClick =  async () => {
+    const account = document.getElementById("balanceOfAccountInput").value
+    if (!account) {
+      alert ('Please fill in the address field')
+      return
+    }
+    const res = await balanceOf(account)
+    document.getElementById("balanceOfDiv").innerText = res
+  }
+
+  const balanceOfCfg = {
+    opts: {
+      'method': 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    },
+    url: "/balanceOf",
+    'query parameters': {
+      account: 'the account to query (i.e Metamask account)'
+    },
+    return: 'The amount (with all decimals) as text'
+  }
+
+  const balanceOf = async(account) => {
+    const url = balanceOfCfg.url + "?" + new URLSearchParams({account: account})
+    console.log(url)
+    const res = await fetch(url, balanceOfCfg.opts)
+    return res.text()
+  }
+
+  const mintClick = async () => {
+
+  }
+
+  const mint = async (to, amount) => {
+    alert (`mint ${amount} to ${to}`)
+  }
+
+  const transferClick = async () => {
+    const to = document.getElementById("transferToInput").value
+    const amount = document.getElementById("transferAmountInput").value
+    if (!amount || !to) {
+      alert ('Please fill in the to and amount fields')
+      return
+    }
+    const res = await transferTo(to, amount)
+    const text = JSON.stringify(res, null, 2)
+    document.getElementById("transferDiv").innerText = text
+  }
+
+  const transferTo = async(to, amount) => {
+    alert('todo')
+    return {done: 'not yet'}
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    // fill the documentation
+    const docs = {
+      "balanceOfDocDiv": balanceOfCfg,
+    }
+    for (let divId in docs) {
+      const text = JSON.stringify(docs[divId], null, 4)
+      document.getElementById(divId).innerText = text
+    }
+  })
+</script>
+
+</body>

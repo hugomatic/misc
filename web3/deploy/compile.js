@@ -1,5 +1,13 @@
-const fs = require("fs");
-const solc = require("solc");
+import fs from 'fs'
+import solc from 'solc'
+/*
+const saveAbi = (contractSourcePath, jsonPath) => {
+  console.log('saveAbi')
+}
+const instantiateContract = (baseContractPath) => {
+  console.log('saveAbi')
+}
+*/
 
 const saveAbi = (contractSourcePath, jsonPath) => {
   const contractData = instantiateContract(contractSourcePath)
@@ -88,11 +96,6 @@ const buildFullPath = (parent, path) => {
   return curDir + "/" + path;
 };
 
-module.exports = {
-  instantiateContract,
-  saveAbi
-};
-
 async function main(){
   console.log(process.argv)
   if (process.argv.length != 4) {
@@ -106,3 +109,10 @@ async function main(){
 if (typeof require !== 'undefined' && require.main === module) {
   main().then( () => process.exit(0))
 }
+
+export default {
+  instantiateContract,
+  saveAbi
+}
+
+

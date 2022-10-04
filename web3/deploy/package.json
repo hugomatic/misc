@@ -1,4 +1,9 @@
 {
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js"
+  },
   "dependencies": {
     "@openzeppelin/contracts": "^4.7.3",
     "dotenv": "^16.0.2",
