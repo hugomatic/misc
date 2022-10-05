@@ -3,9 +3,6 @@
 
 npm install
 
-copy the @openzepelin directory from inside the node_modules directory to the
-root directory.
-
 You need a .env file with the following keys:
 
 POLYGON_NETWORK = "polygon-mumbai"
@@ -16,8 +13,24 @@ CONTRACT_SRC = "./erc20token.sol"
 TOKEN_CONTRACT = "xxxx"
 
 
-# Server
+# Running
+
+## problem with contracts:
+
+The compile script doesn't like the contract files inside the node_module
+directory.
+
+copy the @openzepelin directory from inside the node_modules directory to the
+root directory.
+
+## run server
 
 npm start
 
 navigate to http://localhost:4000
+
+## run as scripts
+
+You can run deploy.js compile.js and erc20token.js as scripts from the cmd line.
+
+
