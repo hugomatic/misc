@@ -76,6 +76,7 @@ TBD
   <button onclick=mintClick()>Mint</button>
 
 <h2>Transfer token</h2>
+  <div class="doc", id="transferDocDiv"></div>
   <label>To account:</label><input id="transferToInput"></input>
   <label>Amount:</label><input id="transferAmountInput"></input>
   <button onclick=transferClick()>Transfer</button>
@@ -161,7 +162,6 @@ TBD
 
   const balanceOf = async(account) => {
     const url = balanceOfCfg.url + "?" + new URLSearchParams({account: account})
-    console.log(url)
     const res = await fetch(url, balanceOfCfg.opts)
     return res.text()
   }
@@ -181,20 +181,38 @@ TBD
       alert ('Please fill in the to and amount fields')
       return
     }
-    const res = await transferTo(to, amount)
+    const res = await transfer(to, amount)
     const text = JSON.stringify(res, null, 2)
     document.getElementById("transferDiv").innerText = text
   }
+  const transferCfg = {
+    opts: {
+      'method': 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    },
+    url: "/transfer",
+    'query parameters': {
+      to: 'the account to send the tokens(i.e Metamask account)',
+      amount: 'the token amount (with all decimals)'
+    },
+    return: 'block and transaction id'
+  }
 
-  const transferTo = async(to, amount) => {
-    alert('todo')
-    return {done: 'not yet'}
+  const transfer = async(to, amount) => {
+    const url = transferCfg.url + "?" + new URLSearchParams({
+      to:to,
+      amount: amount})
+    const result = await fetch(url, transferCfg.opts)
+    return result
   }
 
   document.addEventListener("DOMContentLoaded", () => {
     // fill the documentation
     const docs = {
       "balanceOfDocDiv": balanceOfCfg,
+      "transferDocDiv": transferCfg
     }
     for (let divId in docs) {
       const text = JSON.stringify(docs[divId], null, 4)

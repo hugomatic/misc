@@ -14,3 +14,10 @@ INFURA_API_KEY = "xxxxxx"
 SIGNER_PRIVATE_KEY = "xxxxx"
 CONTRACT_SRC = "./erc20token.sol"
 TOKEN_CONTRACT = "xxxx"
+
+
+# Server
+
+npm start
+
+navigate to http://localhost:4000
