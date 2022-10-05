@@ -204,7 +204,8 @@ TBD
     const url = transferCfg.url + "?" + new URLSearchParams({
       to:to,
       amount: amount})
-    const result = await fetch(url, transferCfg.opts)
+    const resBody = await fetch(url, transferCfg.opts)
+    const result = await resBody.json()
     return result
   }
 
