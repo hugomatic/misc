@@ -22,43 +22,43 @@ const web3 = new Web3 (
 
 
 const signer = web3.eth.accounts.privateKeyToAccount(process.env['SIGNER_PRIVATE_KEY'])
-app.get('/contract', (req, res) => {
+app.get('/api/contract', (req, res) => {
   res.json({
     address: process.env['TOKEN_CONTRACT'],
     account: signer.address
   })
 })
 
-app.get('/name', (req, res) => {
+app.get('/api/name', (req, res) => {
   erc20token.name().then((name)=> {res.send(name)})
 })
 
-app.get('/symbol', (req, res) => {
+app.get('/api/symbol', (req, res) => {
   erc20token.symbol().then((symbol)=> {res.send(symbol)})
 })
 
-app.get('/totalSupply', (req, res) => {
+app.get('/api/totalSupply', (req, res) => {
   erc20token.totalSupply().then((sup)=> {res.send(sup)})
 })
 
-app.get('/balanceOf', (req, res) => {
+app.get('/api/balanceOf', (req, res) => {
   const account = req.query.account
   erc20token.balanceOf(account).then((result)=> {res.send(result)})
 })
 
-app.get('/events', (req, res) => {
+app.get('/api/events', (req, res) => {
   const eventName = req.query.eventName
   const nbOfBlocks = req.query.nbOfBlocks
   erc20token.getEvents(eventName, nbOfBlocks).then((result)=>{res.send(result)})
 })
 
-app.post('/mint', (req, res) => {
+app.post('/api/mint', (req, res) => {
   const to = req.query.to
   const amount = req.query.amount
   erc20token.mint(to, amount).then((result) => {res.send(result)})
 })
 
-app.post('/transfer', (req, res) => {
+app.post('/api/transfer', (req, res) => {
   const to = req.query.to
   const amount = req.query.amount
   erc20token.transfer(to, amount).then((result) => {res.send(result)})

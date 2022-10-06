@@ -92,16 +92,15 @@ TBD the contract emits the following events
 
 <script type="text/javascript">
 
- const opts = {
-    'method': 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    }
-  }
 
   const contractCfg  = {
-    url: '/contract',
-    opts: opts,
+    url: '/api/contract',
+    opts : {
+      'method': 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    },
     return: 'The owner account and the contract address'
   }
 
@@ -112,8 +111,13 @@ TBD the contract emits the following events
   }
 
   const nameCfg  = {
-    url: '/name',
-    opts: opts,
+    url: '/api/name',
+    opts: {
+      'method': 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    },
     return: 'contract name'
   }
 
@@ -124,8 +128,13 @@ TBD the contract emits the following events
   }
 
   const symbolCfg  = {
-    url: '/symbol',
-    opts: opts,
+    url: '/api/symbol',
+    opts: {
+      'method': 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    },
     return: 'token symbol'
   }
 
@@ -136,8 +145,13 @@ TBD the contract emits the following events
   }
 
   const totalSupplyCfg  = {
-    url: '/totalSupply',
-    opts: opts,
+    url: '/api/totalSupply',
+    opts: {
+      'method': 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    },
     return: 'total supply (with all decimals) as string'
   }
 
@@ -152,9 +166,9 @@ TBD the contract emits the following events
       'method': 'GET',
       headers: {
         'Content-Type': 'application/json'
-      }
+      },
     },
-    url: "/balanceOf",
+    url: "/api/balanceOf",
     'query parameters': {
       account: 'the account to query (i.e Metamask account)'
     },
@@ -174,7 +188,7 @@ TBD the contract emits the following events
         'Content-Type': 'application/json'
       }
     },
-    url: "/mint",
+    url: "/api/mint",
     'query parameters': {
       to: 'the account to send the minted tokens(i.e Metamask account)',
       amount: 'the new token amount (with all decimals)'
@@ -198,7 +212,7 @@ TBD the contract emits the following events
         'Content-Type': 'application/json'
       }
     },
-    url: "/transfer",
+    url: "/api/transfer",
     'query parameters': {
       to: 'the account to send the tokens(i.e Metamask account)',
       amount: 'the token amount (with all decimals)'
