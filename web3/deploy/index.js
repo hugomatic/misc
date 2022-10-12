@@ -29,26 +29,6 @@ const web3 = new Web3 (
     `https://${process.env.POLYGON_NETWORK}.infura.io/v3/${process.env.INFURA_API_KEY}`)
 )
 
-app.get('/redeem_qr', (req,res) => {
-
-  const account = req.query.account
-  const amount = req.query.amount
-
-  console.log('reedeem_qr')
-  const text =`
-<html>
-<h1>Redeem via QR</h1>
-
-account: ${account}
-<br>
-amount: ${amount}
-<br>
-<button>Redeem</button>
-</html>
-`
-  res.send(text)
-})
-
 const signer = web3.eth.accounts.privateKeyToAccount(process.env['SIGNER_PRIVATE_KEY'])
 app.get('/api/contract', (req, res) => {
   res.json({

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+
+<style>
+.response{
+  padding: 2px;
+  display:block;
+  white-space: pre;
+}
+</style>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Redeem QR</title>
+
+  <script src="/scripts/easy.qrcode.min.js"></script>
+
+</head>
+
+<body>
+
+<h1>Redeem tokens via QR</h1>
+<div>Amount: <span id="amount"></div>
+<div>Account: <span id="account"></div>
+<button onclick=redeemClick()>Mint</button>
+
+<div id="progress" class="response">
+</div>
+
+<script type="text/javascript">
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const account = GetURLParameter('account')
+    const amount = GetURLParameter('amount')
+    document.getElementById("amount").innerHTML = amount
+    document.getElementById("account").innerHTML = account
+  })
+
+  function GetURLParameter(sParam)
+  {
+      var sPageURL = window.location.search.substring(1);
+      var sURLVariables = sPageURL.split('&');
+      for (var i = 0; i < sURLVariables.length; i++)
+      {
+          var sParameterName = sURLVariables[i].split('=');
+          if (sParameterName[0] == sParam)
+          {
+              return sParameterName[1];
+          }
+      }
+  }
+
+  const mint = async(to, amount) => {
+
+   const opts = {
+      'method': 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }
+    const url = "/api/mint" + "?" + new URLSearchParams({
+      to:to,
+      amount: amount})
+    const resBody = await fetch(url, opts)
+    const result = await resBody.json()
+    return result
+  }
+
+  const redeemClick = async () => {
+    const amount = document.getElementById("amount").innerHTML
+    const account = document.getElementById("account").innerHTML
+    document.getElementById("progress").innerHTML = "in progress..."
+
+    const result = await mint(account, amount)
+    document.getElementById("progress").innerHTML = JSON.stringify(result, null, 2)
+  }
+
+</script>
+
+</body>

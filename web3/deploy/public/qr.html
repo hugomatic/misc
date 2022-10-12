@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+
+<style>
+</style>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Crypto QR</title>
+
+  <script src="/scripts/easy.qrcode.min.js"></script>
+
+</head>
+
+<body>
+
+<h1>Generate a mint QR</h1>
+
+<label>amount:</label><input id="amount"></input>
+<label>to:</label><input id="account"></input>
+<button onclick=generateQrClick()>Generate</button>
+
+<div>
+<div id="qrcode"></div>
+</div>
+<div id="link"></dev>
+<script type="text/javascript">
+  function generateQrClick(){
+    const amount = document.getElementById("amount").value
+    const account = document.getElementById("account").value
+    generateQr("qrcode", amount, account)
+  }
+  function generateQr(qrDivName, amount, account) {
+
+    const link = "http://192.168.1.192:4000/qr_redeem.html?amount=" + amount
+      + "&" + "account=" + account
+    // Options
+    var options = {
+      text: link
+    }
+    console.log(link)
+    document.getElementById("link").innerHTML = '<a href="' + link + '">' +  link + '</a>'
+    // Create QRCode Object
+    new QRCode(document.getElementById(qrDivName), options)
+  }
+</script>
+
+</body>
