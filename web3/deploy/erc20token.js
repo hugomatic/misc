@@ -92,29 +92,30 @@ async function name() {
 
 // wrapper for token transfer (gas tx fees apply)
 async function transfer(to, amount) {
-  const tx = contract.methods.transfer( to, amount)
-  const gas = await tx.estimateGas({from: signer.address})
-  let txUrl = ""
-  const receipt = await tx.send({
-      from: signer.address,
-      gas: gas,
-    })
-    .once('transactionHash', (txhash) => {
-      console.log(`Mining transaction ...`)
-      const chain = process.env.POLYGON_NETWORK.replace('polygon-', '')
-      txUrl = `https://${chain}.polygonscan.com/tx/${txhash}`
-    })
-  // done
-  console.log(
-    `tx "transfer" [to: ${to}, amount: ${amount}] Mined in block ${receipt.blockNumber}`,
-    ` ${txUrl}`
-  )
+    const tx = contract.methods.transfer( to, amount)
+    const gas = await tx.estimateGas({from: signer.address})
 
-  return {
-    block: receipt.blockNumber,
-    url: txUrl,
-    contract: process.env.CONTRACT_SRC
-  }
+    let txUrl = ""
+    const receipt = await tx.send({
+        from: signer.address,
+        gas: gas,
+      })
+      .once('transactionHash', (txhash) => {
+        console.log(`Mining transaction ...`)
+        const chain = process.env.POLYGON_NETWORK.replace('polygon-', '')
+        txUrl = `https://${chain}.polygonscan.com/tx/${txhash}`
+      })
+    // done
+    console.log(
+      `tx "transfer" [to: ${to}, amount: ${amount}] Mined in block ${receipt.blockNumber}`,
+      ` ${txUrl}`
+    )
+
+    return {
+      block: receipt.blockNumber,
+      url: txUrl,
+      contract: process.env.CONTRACT_SRC
+    }
 }
 
 // look in the blockchain for latest events (free call).
