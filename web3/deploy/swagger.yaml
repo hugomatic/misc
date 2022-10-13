@@ -155,6 +155,46 @@ paths:
                   contract:
                     type: string
                     example: "./erc20token.sol"
+                    description: The contract source file used
+        "400":
+          description: The amount or account are missing or invalid
+
+  /api/transfer:
+    post:
+      summary: Send ERC20 tokens from the owner account
+      description: Transfer existing tonkens from the owner to an address
+      operationId: transfer
+      parameters:
+        - in: query
+          name: to
+          description: The receiving account
+          schema:
+            type: string
+            example: "0xD03ABc1BE62A03b0660e5c8fB1b872935Ec40535"
+        - in: query
+          name: amount
+          description: The amount (with all decimals)
+          schema:
+            type: string
+            example: "1000000000000000000"
+      responses:
+        "200":
+          description: The transfer information
+          headers:
+          content:
+            application/json:
+              schema:
+                type: Object
+                properties:
+                  block:
+                    type: Number
+                    example: 28604649
+                  url:
+                    type: string
+                    description: Link to the tx on the block explorer
+                    example: "https://mumbai.polygonscan.com/tx/0xa516e7ab3654bb2728ad13e301e943b9cba12f27eccb4d74dc15f348e6340282"
+        "400":
+          description: The amount or account are missing or invalid
 
 
   /api/transfer:
