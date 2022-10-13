@@ -1,0 +1,165 @@
+openapi: 3.0.0
+info:
+  title: ERC 20 token service
+  description: Node.js service to interact with ERC20 token (Polygon network)
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:4000
+    description: Local development server
+
+paths:
+  /api/contract:
+    get:
+      summary: Get contract information
+      description: returns the contract address and owner account
+      operationId: name
+      responses:
+        "200":
+          description: The contract informtation
+          headers:
+          content:
+            application/json:
+              schema:
+                type: Object
+                properties:
+                  address:
+                    description: contract address on the blockchain
+                    type: string
+                    example: "0xc25D46674f122438dA89d8A49Ba05Ad80C38bC01"
+                  account:
+                    description: contract owner account
+                    type: string
+                    example: "0xD03ABc1BE62A03b0660e5c8fB1b872935Ec40535"
+  /api/name:
+    get:
+      summary: Get the contract name
+      description: returns the name of the solidity contract
+      operationId: name
+      responses:
+        "200":
+          description: The contract name
+          headers:
+          content:
+            application/json:
+              schema:
+                type: string
+  /api/symbol:
+    get:
+      summary: Get the ERC20 token symbol
+      description: returns the token symbol
+      operationId: symbol
+      responses:
+        "200":
+          description: The symbol
+          headers:
+          content:
+            application/json:
+              schema:
+                type: string
+  /api/totalsupply:
+    get:
+      summary: Get the token's total supply
+      description: returns the supply (with 18 decimals)
+      operationId: totalsupply
+      responses:
+        "200":
+          description: The supply
+          headers:
+          content:
+            application/json:
+              schema:
+                type: string
+  /api/balanceof:
+    get:
+      summary: Get an account's balance
+      description: returns the supply (with 18 decimals)
+      operationId: totalsupply
+      parameters:
+        - in: query
+          name: account
+          description: The account number
+          schema:
+            type: string
+            example: "0xD03ABc1BE62A03b0660e5c8fB1b872935Ec40535"
+
+      responses:
+        "200":
+          description: The balance
+          headers:
+          content:
+            application/json:
+              schema:
+                type: string
+
+  /api/events:
+    get:
+      summary: Look for contract events in the blockchain
+      description: returns a list of events
+      operationId: events
+      parameters:
+        - in: query
+          name: event
+          description: The event name (Transfer, Approval, RoleGranted)
+          schema:
+            type: string
+            example: "Transfer"
+        - in: query
+          name: nbOfBlocks
+          description: The number of blocks to look in the past (max 3500)
+          schema:
+            type: Number
+            example: 3000
+      responses:
+        "200":
+          description: The events
+          headers:
+          content:
+            application/json:
+              schema:
+                type: string
+
+  /api/mint:
+    post:
+      summary: Mint ERC20 tokenss
+      description: Generate new tokens and assign them to an address
+      operationId: mint
+      parameters:
+        - in: query
+          name: to
+          description: The receiving account
+          schema:
+            type: string
+            example: "0xD03ABc1BE62A03b0660e5c8fB1b872935Ec40535"
+        - in: query
+          name: amount
+          description: The amount (with all decimals)
+          schema:
+            type: string
+            example: "1000000000000000000"
+      responses:
+        "200":
+          description: The mint information
+          headers:
+          content:
+            application/json:
+              schema:
+                type: Object
+                properties:
+                  block:
+                    type: Number
+                    example: 28604649
+                  url:
+                    type: string
+                    example: "https://mumbai.polygonscan.com/tx/0xa516e7ab3654bb2728ad13e301e943b9cba12f27eccb4d74dc15f348e6340282"
+                  contract:
+                    type: string
+                    example: "./erc20token.sol"
+
+
+  /api/transfer:
+    post:
+
+
+
+
