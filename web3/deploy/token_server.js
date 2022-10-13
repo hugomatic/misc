@@ -4,7 +4,9 @@ import dotenv from 'dotenv'
 import compile from './compile.js'
 import erc20token from './erc20token.js'
 import path from 'path';
-import {fileURLToPath} from 'url';
+import {fileURLToPath} from 'url'
+import YAML from 'yamljs'
+import swaggerUi from 'swagger-ui-express'
 
 // Define "require"
 // import { createRequire } from "module";
@@ -17,6 +19,11 @@ const port = 4000
 
 app.use(express.static('public'))
 
+// swagger docs route
+const swaggerDocument = YAML.load('./swagger.yaml')
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
+
+// qr code library
 app.get('/scripts/easy.qrcode.min.js', function(req, res) {
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = path.dirname(__filename);

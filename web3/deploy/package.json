@@ -2,13 +2,15 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "node index.js"
+    "start": "node token_server.js"
   },
   "dependencies": {
     "@openzeppelin/contracts": "^4.7.3",
     "dotenv": "^16.0.2",
     "easyqrcodejs": "^4.4.13",
     "solc": "^0.8.17",
-    "web3": "^1.8.0"
+    "swagger-ui-express": "^4.5.0",
+    "web3": "^1.8.0",
+    "yamljs": "^0.3.0"
   }
 }
