@@ -106,8 +106,13 @@ app.post('/api/transfer', (req, res) => {
 
 app.post('/api/deploy', (req, res) => {
   const contractPath = process.env.CONTRACT_SRC
+  console.log('deploy', contractPath)
   deploy.deploy_contract(contractPath)
-    .then((result) => {res.send(result)})
+    .then((address) => {
+      const result = {contract:contractPath , address: address}
+      console.log('deploy result', result)
+      res.send(result)
+    })
     .catch((error) => {
       let stat = 500
       console.log('Error during deploy:', error)

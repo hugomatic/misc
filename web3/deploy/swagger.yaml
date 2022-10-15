@@ -124,25 +124,23 @@ paths:
       summary: Deploy a smart contract
       description: Deploys a smart contract from source (imported files must be in root dir)
       operationId: deploy
-      parameters:
-        - in: query
-          name: sourcePath
-          description: The source file path (written in solidity)
-          schema:
-            type: string
-            example: "token.sol"
       responses:
         "200":
-        description: The contract blockchain address and deployment information
-        headers:
-        content:
-          application/json:
-            schema:
-              type: Object
-              properties:
-                block:
-                  type: Number
-                  description: block where the deployment tx was mined
+          description: The contract address and deploy info
+          headers:
+          content:
+            application/json:
+              schema:
+                type: Object
+                properties:
+                  address:
+                    type: string
+                    example: "https://mumbai.polygonscan.com/tx/0xa516e7ab3654bb2728ad13e301e943b9cba12f27eccb4d74dc15f348e6340282"
+                  contract:
+                    type: string
+                    example: "./erc20token.sol"
+                    description: The contract source file used
+
 
   /api/mint:
     post:
