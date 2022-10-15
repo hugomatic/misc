@@ -2,11 +2,13 @@ import express from 'express'
 import Web3 from 'web3'
 import dotenv from 'dotenv'
 import compile from './compile.js'
-import erc20token from './erc20token.js'
 import path from 'path';
 import {fileURLToPath} from 'url'
 import YAML from 'yamljs'
 import swaggerUi from 'swagger-ui-express'
+
+import erc20token from './erc20token.js'
+import deploy from './deploy.js'
 
 // Define "require"
 // import { createRequire } from "module";
@@ -100,6 +102,17 @@ app.post('/api/transfer', (req, res) => {
       console.log('Error during transfer:', error)
       res.status(stat).send({error: error.reason})
     })
+})
+
+app.post('/api/deploy', (req, res) => {
+  const contractPath = process.env.CONTRACT_SRC
+  deploy.deploy_contract(contractPath)
+    .then((result) => {res.send(result)})
+    .catch((error) => {
+      let stat = 500
+      console.log('Error during deploy:', error)
+      res.status(stat).send({error: error.reason})
+  })
 })
 
 app.listen(port, '0.0.0.0', () => console.log(`http://localhost:${port}`))

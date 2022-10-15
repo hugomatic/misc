@@ -119,6 +119,31 @@ paths:
               schema:
                 type: string
 
+  /api/deploy:
+    post:
+      summary: Deploy a smart contract
+      description: Deploys a smart contract from source (imported files must be in root dir)
+      operationId: deploy
+      parameters:
+        - in: query
+          name: sourcePath
+          description: The source file path (written in solidity)
+          schema:
+            type: string
+            example: "token.sol"
+      responses:
+        "200":
+        description: The contract blockchain address and deployment information
+        headers:
+        content:
+          application/json:
+            schema:
+              type: Object
+              properties:
+                block:
+                  type: Number
+                  description: block where the deployment tx was mined
+
   /api/mint:
     post:
       summary: Mint ERC20 tokenss
@@ -195,11 +220,5 @@ paths:
                     example: "https://mumbai.polygonscan.com/tx/0xa516e7ab3654bb2728ad13e301e943b9cba12f27eccb4d74dc15f348e6340282"
         "400":
           description: The amount or account are missing or invalid
-
-
-  /api/transfer:
-    post:
-
-
 
 

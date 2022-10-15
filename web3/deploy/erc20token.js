@@ -24,6 +24,7 @@ const web3 = new Web3 (
 
 const contract = new web3.eth.Contract(contractInstance.abi,
                                        process.env.TOKEN_CONTRACT)
+
 const signer = web3.eth.accounts.privateKeyToAccount(
                                        process.env.SIGNER_PRIVATE_KEY)
 

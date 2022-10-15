@@ -1,10 +1,15 @@
-const Web3 = require('web3')
-const fs = require('fs')
-const dotenv = require('dotenv')
-const compile = require('./compile')
+import Web3 from 'web3'
+import fs from 'fs'
+import dotenv from 'dotenv'
+import compile from './compile.js'
+
+export default {
+  deploy_contract
+}
 
 async function deploy_contract(contractPath) {
   dotenv.config()
+
   // compile solidity source and get abi, bytecode
   const contractInstance = compile.instantiateContract(contractPath)
   const abi = contractInstance.abi
@@ -40,10 +45,12 @@ async function deploy_contract(contractPath) {
   return deployedContract.options.address
 }
 
+
 async function main() {
   console.log(process.argv);
   if (process.argv.length != 3) {
-    console.log('node deploy.js ./contract.sol')
+    console.log('wrong nb of arguments')
+    console.log('usage: node deploy.js ./contract.sol')
     return -1
   }
   contractPath = process.argv[2]
@@ -53,8 +60,7 @@ async function main() {
   console.log(`Contract deployed at address "${address}"`)
 }
 
-if (typeof require !== 'undefined' && require.main === module) {
-  // deploy_contract(contract_json).then(() => process.exit(0))
+if (process.argv[1].indexOf("deploy.js") > -1){
   main().then(()=> process.exit(0))
 }
 

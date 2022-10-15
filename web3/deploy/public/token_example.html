@@ -152,7 +152,6 @@ TBD the contract emits the following events
         'Content-Type': 'application/json',
       },
     },
-    return: 'total supply (with all decimals) as string'
   }
 
   const totalSupply = async () => {
@@ -169,10 +168,6 @@ TBD the contract emits the following events
       },
     },
     url: "/api/balanceOf",
-    'query parameters': {
-      account: 'the account to query (i.e Metamask account)'
-    },
-    return: 'The amount (with all decimals) as text'
   }
 
   const balanceOf = async(account) => {
@@ -189,11 +184,6 @@ TBD the contract emits the following events
       }
     },
     url: "/api/mint",
-    'query parameters': {
-      to: 'the account to send the minted tokens(i.e Metamask account)',
-      amount: 'the new token amount (with all decimals)'
-    },
-    return: 'block and transaction id'
   }
 
   const mint = async(to, amount) => {
@@ -213,11 +203,6 @@ TBD the contract emits the following events
       }
     },
     url: "/api/transfer",
-    'query parameters': {
-      to: 'the account to send the tokens(i.e Metamask account)',
-      amount: 'the token amount (with all decimals)'
-    },
-    return: 'block and transaction id'
   }
 
   const transfer = async(to, amount) => {
