@@ -10,7 +10,7 @@ const __dirname = dirname(__filename)
 
 
 const app = express()
-const port = 4000
+const port = 4444
 
 const imagePath = __dirname + '/data/image.jpg'
 console.log('SAVING to ', imagePath)
