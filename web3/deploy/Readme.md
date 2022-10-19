@@ -23,6 +23,8 @@ directory.
 copy the @openzepelin directory from inside the node_modules directory to the
 root directory.
 
+cp -r node_modules/@openzeppelin/ .
+
 ## run server
 
 npm start
