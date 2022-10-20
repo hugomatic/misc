@@ -11,7 +11,10 @@ INFURA_API_KEY = "xxxxxx"
 SIGNER_PRIVATE_KEY = "xxxxx"
 CONTRACT_SRC = "./erc20token.sol"
 TOKEN_CONTRACT = "xxxx"
-
+// where to send tokens from caltrains demo
+DST_ACCOUNT = "xxx"
+// this is for the google vision api (OCR to read ticket data from phone pict)
+GOOGLE_APPLICATION_CREDENTIALS="../goog.json"
 
 # Running
 

@@ -2,12 +2,14 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "node token_server.js"
+    "start": "node token_server.js 2>&1| tee public/log.txt"
   },
   "dependencies": {
+    "@google-cloud/vision": "^3.0.1",
     "@openzeppelin/contracts": "^4.7.3",
     "dotenv": "^16.0.2",
     "easyqrcodejs": "^4.4.13",
+    "formidable": "^3.2.5",
     "solc": "^0.8.17",
     "swagger-ui-express": "^4.5.0",
     "web3": "^1.8.0",

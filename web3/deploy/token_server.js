@@ -10,6 +10,7 @@ import swaggerUi from 'swagger-ui-express'
 import erc20token from './erc20token.js'
 import deploy from './deploy.js'
 
+import phone from './photo_phone.js'
 // Define "require"
 // import { createRequire } from "module";
 // const require = createRequire(import.meta.url);
@@ -118,6 +119,29 @@ app.post('/api/deploy', (req, res) => {
       console.log('Error during deploy:', error)
       res.status(stat).send({error: error.reason})
   })
+})
+
+app.post('/photo', phone.photoRequest, (req, res) => {
+  console.log(res.ticketData)
+ 
+  const to = process.env['DST_ACCOUNT']
+  const amount = '' + (res.ticketData.price * 100) + '000000000000000'
+  console.log('mint', amount,'tokens to ', to)
+		
+  erc20token.mint(to, amount)
+    .then((result) => {
+      console.log(result)
+    })
+    .catch((error) => {
+      let  stat = 500
+      if (error.code == 'INVALID_ARGUMENT') {
+        stat = 400
+      }
+      console.log('Error during transfer:', error)
+      res.status(stat).send({error: error.reason})
+    })
+   	
+  res.json({ticket: res.ticketData, mint: {amount: amount, to: to}})
 })
 
 app.listen(port, '0.0.0.0', () => console.log(`http://localhost:${port}`))
