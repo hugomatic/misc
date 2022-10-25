@@ -85,8 +85,10 @@ app.post('/api/mint', (req, res) => {
       if (error.code == 'INVALID_ARGUMENT') {
         stat = 400
       }
+      let er = error.reason
+      if (!er) er = error
       console.log('Error during mint:', error)
-      res.status(stat).send({error: error.reason})
+      res.status(stat).send({error: '' + er})
     })
 })
 
