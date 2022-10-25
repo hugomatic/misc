@@ -156,7 +156,7 @@ paths:
           description: The receiving account
           schema:
             type: string
-            example: "0xD03ABc1BE62A03b0660e5c8fB1b872935Ec40535"
+            example: "0x9Cc41DA122b93E993Cb113b5E1f8d54A5d42C178"
         - in: query
           name: amount
           description: The amount (with all decimals)
