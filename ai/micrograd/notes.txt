@@ -1,0 +1,9 @@
+# install
+
+There's an issue with graphviz installed with pip.
+
+
+graphviz.backend.ExecutableNotFound: failed to execute ['dot', '-Tpdf', '-O', 'Digraph.gv'], make sure the Graphviz executables are on your systems' PATH
+
+
+try to install via apt-get
