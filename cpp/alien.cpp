@@ -6,6 +6,8 @@
 
 
 std::tuple<char, char> how(std::string const &first, std::string const &second) {
+  // compare 2 ordered words letter by letter, to find which is first.
+  // Return which 2 letters determine the order, or ('x' ,'x').
   using namespace std;
   // cout << " how is [" << first << "] < " << "[" << second << "]?" << endl;
   for (size_t i=0; i < first.length(); ++i) {
@@ -15,10 +17,12 @@ std::tuple<char, char> how(std::string const &first, std::string const &second) 
       return std::make_tuple(before, after);
     }
   }
+  // should not happen unles comparing a word to itself
   return std::make_tuple('x', 'x');
 }
 
 void pr(std::vector<std::string> const &words) {
+  // print a list of words with their characters indices
   using namespace std;
   for (auto &word: words) {
     cout << word << " (" << word.length() << ") " << endl;
@@ -30,6 +34,7 @@ void pr(std::vector<std::string> const &words) {
 }
 
 void pr(std::string const& msg, std::list<char> const &order) {
+  // print a list of ordered letters
   using namespace std;
   cout << msg << " [";
   for (auto &c :order) {
@@ -45,22 +50,29 @@ int main() {
   using namespace std;
   std::vector<std::string> words {"pbb", "bpku", "bpkb", "kbu"};
   pr(words);
+  // build our alphabet
   std::list<char> order;
   int count = 0;
   for (size_t i =0; i < words.size() -1; ++i) {
     auto [before, after] = how(words[i], words[i+1]);
-    cout << words[i] << " " << words[i+1] << " [" << before << "< " << after << "]" << endl;
+    cout << i << " comp: '" << words[i] << "' '" << words[i+1] << "'? "
+         << " [" << before << "< " << after << "]" << endl;
+    // is the before (smallest value) letter in our alphabet?
     auto ib = std::find(order.begin(), order.end(), before);
+    // is the after (bigger value) letter in our alphabet?
     auto ia = std::find(order.begin(), order.end(), after);
+    // both there already?
     if (ib != order.end() && ia != order.end()) {
       continue;
     }
-    // add before if not there
+
+    // add the before (smallest) letter at the end if not already there
     if (ib == order.end()) {
       if (ia == order.end()) {
         order.push_back(before);
       }
       else {
+        // insert before the after letter
         order.insert(ia, before);
       }
 
@@ -71,6 +83,7 @@ int main() {
         order.push_back(after);
       }
       else {
+        // insert after the before
         ib ++;
         order.insert(ib, after);
       }
