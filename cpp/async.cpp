@@ -16,6 +16,7 @@ int main() {
     std::cout << square(i) << std::endl;
   }
 
+  std::cout << "====" << std::endl;
   int res = asyncFunction.get();
   std::cout << res <<  " the end" << std::endl;
   return 0;

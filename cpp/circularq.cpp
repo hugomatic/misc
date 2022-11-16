@@ -65,7 +65,7 @@ public:
     CircularQueue (int buffer_size)
      :buffer_size(buffer_size),
       newest(0),
-      oldest(),
+      oldest(0),
       elemCount(0),
       debug(true)
 
@@ -223,7 +223,8 @@ void t2() {
 }
 
 int main(void)
-{ // t1();
+{
+  t1();
   t2();
 }
 
