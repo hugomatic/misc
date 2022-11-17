@@ -12,12 +12,12 @@
 
 #include "config.h" // in the cmake build dir
 
-namespace cppgrad {
+namespace grad {
 
   class Value {
 
   public:
-    Value(double data, std::string const&op="", std::vector<Value*> prev={} )
+    Value(double data=0, std::string const&op="", std::vector<Value*> prev={} )
       :_data(data), _op(op), _prev(prev)
     {
 
@@ -82,6 +82,7 @@ namespace cppgrad {
     }
 
 
+
     Value tanh() {
       double d = ::tanh(data());
       Value out(d, "tanh", {this});
@@ -98,6 +99,7 @@ namespace cppgrad {
     {
       out << "{ "
         << "\"label\":" << "\"" <<  _label << "\" " << ", "
+        << "\"op\":" << "\"" <<  _op << "\" " << ", "
         << "\"data\": " << std::setprecision(6) << _data << ", "
         << "\"grad\": " << std::setprecision(6) << _grad << ", "
         << "\"id\": \"" << this << "\", "
@@ -131,37 +133,69 @@ namespace cppgrad {
           }
         }
       }
-      // std::reverse(topo.begin(), topo.end());
+      std::cout << "\nBackward" << std::endl;
+      int count = 0;
       for (auto v:topo) {
+        std::cout << "-" << count << std::endl ;
         v->repr(std::cout);
+        // v->_backward();
         std::cout << std::endl;
-        v->_backward();
+        count ++;
       }
-
     }
 
   private:
 
     std::function<void()> _backward{[](){}};
-
     double _data;
     double _grad{0.0};
     std::string _label;
     std::string _op;
     std::vector<Value*> _prev;
-
   };
 
-}
+  class Neuron {
 
-std::ostream& operator<<(std::ostream& out, const cppgrad::Value& value) {
+    public:
+    Neuron(size_t nin)
+    {
+      _weights.resize(nin);
+    }
+
+    Value forward(std::vector<Value> &x)
+    {
+      _nodes.clear();
+      Value *psum = &_bias;
+      for(size_t i=0; i < _weights.size(); ++i ) {
+        // compute weight * input
+        _nodes.push_back(x[i] *_weights[i] );
+        Value &xw = _nodes[_nodes.size() -1];
+        _nodes.push_back(xw + *psum);
+        psum = &_nodes[_nodes.size() -1];
+      }
+      // psum should now point to the activation value
+      _nodes.push_back(psum->tanh());
+       _nodes[_nodes.size() -1].backward();
+      return  _nodes[_nodes.size() -1];
+    }
+
+    // private:
+    std::vector<Value> _weights;
+    Value _bias;
+    // intermediate nodes
+    std::vector<Value> _nodes;
+  };
+
+std::ostream& operator<<(std::ostream& out, const grad::Value& value) {
     return value.repr(out);
 }
 
 
+} // namespace ccpgrad
+
 void test1() {
   using namespace std;
-  using namespace cppgrad;
+  using namespace grad;
 
   Value a{42.0};
   a.label("a");
@@ -182,7 +216,7 @@ void test1() {
 
 void test_add() {
   using namespace std;
-  using namespace cppgrad;
+  using namespace grad;
 
   Value a{42.0};
   a.label("a");
@@ -209,7 +243,7 @@ void test_add() {
 
 void test_mul() {
   using namespace std;
-  using namespace cppgrad;
+  using namespace grad;
 
   Value a{42.0};
   a.label("a");
@@ -232,7 +266,7 @@ void test_mul() {
 
 void test_tanh() {
   using namespace std;
-  using namespace cppgrad;
+  using namespace grad;
 
   cout << "test_tanh" << endl;
   Value a(0.8814);
@@ -279,7 +313,7 @@ void test_bits() {
 
 void test_backward() {
   using namespace std;
-  using namespace cppgrad;
+  using namespace grad;
 
   Value x1(2.0); x1.label("x1");
   Value x2(0.0); x2.label("x2");
@@ -295,6 +329,36 @@ void test_backward() {
   o.backward();
 }
 
+void test_neuron() {
+  using namespace std;
+  using namespace grad;
+
+  cout << "test_neuron" << endl;
+  Neuron n(2);
+  n._bias= Value(6.881373);
+  n._weights[0] = Value(-3.0);
+  n._weights[1] = Value(1.0);
+  std::vector<Value> x;
+  x.resize(2);
+  x[0] = Value(2.0);
+  x[0].label("x0");
+  x[1] = Value(0.0);
+  x[1].label("x1");
+
+  cout << "inputs" << endl;
+  cout << x[0] << endl;
+  cout << x[1] << endl;
+
+  cout << "test forward" << endl;
+  Value o = n.forward(x);
+  o.label("o");
+  cout << o << endl;
+  cout << "backward" << endl;
+  o.backward();
+  cout << "output" << endl;
+  cout << o << endl;
+}
+
 int main() {
   using namespace std;
 
@@ -302,12 +366,14 @@ int main() {
     << cppgrad_VERSION_MAJOR << "."
     << cppgrad_VERSION_MINOR
     << endl;
+
   test1();
   test_add();
   test_mul();
   test_tanh();
   test_bits();
-
   test_backward();
+
+  test_neuron();
   return 0;
 }
