@@ -148,7 +148,7 @@ app.post('/photo', phone.photoRequest, (req, res) => {
   res.json({ticket: res.ticketData, mint: {amount: amount, to: to}})
 })
 
-const paid_trips = []
+let paid_trips = []
 
 async function getTraccarTrips(){
   const trips = []
@@ -161,8 +161,9 @@ async function getTraccarTrips(){
     delete(trip.deviceId)
     delete(trip.startAddress)
     delete(trip.endAddress)
-    delete(trip.verUniqueId)
+    delete(trip.driverUniqueId)
     delete(trip.driverName)
+    delete(trip.spentFuel)
     const hash =  getMd5(trip)
     let paid = true
     if (!paid_trips.includes(hash)) {
@@ -173,6 +174,7 @@ async function getTraccarTrips(){
   const data = {
     server: process.env.traccar_url ,
     user: process.env.traccar_username,
+    days: days,
     trips: trips
   }
   return data
@@ -182,5 +184,18 @@ app.get('/trips', async (req, res) => {
   const data = await getTraccarTrips()
   res.send(data)
 })
+
+app.get('/reset_trips', (req, res) => {
+  const count = paid_trips.length
+  paid_trips = []
+  const r = {success:true, count:count}
+  console.log('reset trips', r)
+  res.send(r)
+})
+
+app.get('/process_trips', (req, res) => {
+  consol.log()
+})
+
 
 app.listen(port, '0.0.0.0', () => console.log(`http://localhost:${port}`))

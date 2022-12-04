@@ -20,18 +20,34 @@ white-space: pre;
 
 <h1>Crypto bridge mobility</h1>
 
-<h2>Latest trips</h2>
-<div class="response" id="trips"></div>
 
 <button onclick="onClickReset()">reset</button>
+<div class="response" id="reset"></div>
+<button onclick="onClickProcess()">process payments now</button>
+<div class="response" id="process"></div>
+
+<h2>latest trips</h2>
+
+<div class="response" id="trips"></div>
 
 <script type="text/javascript">
 
-function onClickReset() {
-  if (window.confirm('not yet')) {
-    window.location.reload(false)
+async function onClickReset() {
+  if (window.confirm('This is a testnet only feature. Proceed?')) {
+    const res = await fetch('/reset_trips')
+    const resBody = await res.json()
+    const div = document.getElementById("reset")
+    div.innerHTML = JSON.stringify(resBody, null,2)
+    // window.location.reload(false)
+    await updateTrips()
   }
 }
+
+function onClickProcess() {
+  if (window.confirm('not yet')) {
+  }
+}
+
 
 async function getTrips() {
   const opts = {
@@ -45,19 +61,17 @@ async function getTrips() {
   return resBody
 }
 
-document.addEventListener("DOMContentLoaded", async () => {
+async function updateTrips() {
   const div = document.getElementById("trips")
   div.innerHTML = "loading trips..."
   const data = await getTrips()
-
-  let str = JSON.stringify(data, null, 2)
-  /*
-  for (let i in trips) {
-    const trip = trips[i]
-    str += '' + i + ') ' + trip.name + '\n'
-  }
-  */
+  const str = JSON.stringify(data, null, 2)
   div.innerHTML = str
+
+}
+
+document.addEventListener("DOMContentLoaded", async () => {
+  await updateTrips()
 })
 
 </script>
