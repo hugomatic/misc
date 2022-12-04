@@ -11,6 +11,8 @@ import erc20token from './erc20token.js'
 import deploy from './deploy.js'
 
 import phone from './photo_phone.js'
+import {getAllDevices, getTrips, getMd5} from './fetch_traccar.js'
+
 // Define "require"
 // import { createRequire } from "module";
 // const require = createRequire(import.meta.url);
@@ -125,11 +127,11 @@ app.post('/api/deploy', (req, res) => {
 
 app.post('/photo', phone.photoRequest, (req, res) => {
   console.log(res.ticketData)
- 
+
   const to = process.env['DST_ACCOUNT']
   const amount = '' + (res.ticketData.price * 100) + '000000000000000'
   console.log('mint', amount,'tokens to ', to)
-		
+
   erc20token.mint(to, amount)
     .then((result) => {
       console.log(result)
@@ -142,8 +144,43 @@ app.post('/photo', phone.photoRequest, (req, res) => {
       console.log('Error during transfer:', error)
       res.status(stat).send({error: error.reason})
     })
-   	
+
   res.json({ticket: res.ticketData, mint: {amount: amount, to: to}})
+})
+
+const paid_trips = []
+
+async function getTraccarTrips(){
+  const trips = []
+  const devId = 161
+  const days = 20
+  const tripData = await getTrips(devId, days)
+  console.log(tripData.length, 'trips for dev', devId, 'in last', days, 'days')
+  for (let i in tripData) {
+    const trip = tripData[i]
+    delete(trip.deviceId)
+    delete(trip.startAddress)
+    delete(trip.endAddress)
+    delete(trip.verUniqueId)
+    delete(trip.driverName)
+    const hash =  getMd5(trip)
+    let paid = true
+    if (!paid_trips.includes(hash)) {
+      paid = false
+    }
+    trips.push({hash:hash, paid: paid, trip: trip})
+  }
+  const data = {
+    server: process.env.traccar_url ,
+    user: process.env.traccar_username,
+    trips: trips
+  }
+  return data
+}
+
+app.get('/trips', async (req, res) => {
+  const data = await getTraccarTrips()
+  res.send(data)
 })
 
 app.listen(port, '0.0.0.0', () => console.log(`http://localhost:${port}`))

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+
+<style>
+.response{
+border: 2px solid red;
+width:50%;
+display:block;
+white-space: pre;
+}
+</style>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Crypto bridge</title>
+</head>
+
+<body>
+
+<h1>Crypto bridge mobility</h1>
+
+<h2>Latest trips</h2>
+<div class="response" id="trips"></div>
+
+<button onclick="onClickReset()">reset</button>
+
+<script type="text/javascript">
+
+function onClickReset() {
+  if (window.confirm('not yet')) {
+    window.location.reload(false)
+  }
+}
+
+async function getTrips() {
+  const opts = {
+    'method': 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    }
+  }
+  const res = await fetch('/trips', opts)
+  const resBody = await res.json()
+  return resBody
+}
+
+document.addEventListener("DOMContentLoaded", async () => {
+  const div = document.getElementById("trips")
+  div.innerHTML = "loading trips..."
+  const data = await getTrips()
+
+  let str = JSON.stringify(data, null, 2)
+  /*
+  for (let i in trips) {
+    const trip = trips[i]
+    str += '' + i + ') ' + trip.name + '\n'
+  }
+  */
+  div.innerHTML = str
+})
+
+</script>
+
+</body>
