@@ -194,7 +194,9 @@ app.get('/reset_trips', (req, res) => {
 })
 
 app.get('/process_trips', (req, res) => {
-  consol.log()
+  const r = {success: 'comming soon'}
+  console.log('process trips', r)
+  res.send(r)
 })
 
 

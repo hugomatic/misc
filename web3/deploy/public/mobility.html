@@ -43,8 +43,12 @@ async function onClickReset() {
   }
 }
 
-function onClickProcess() {
-  if (window.confirm('not yet')) {
+async function onClickProcess() {
+  if (window.confirm('Pay all unpaid trips immediately?')) {
+    const res = await fetch('/process_trips')
+    const resBody = await res.json()
+    const div = document.getElementById("process")
+    div.innerHTML = JSON.stringify(resBody, null, 2)
   }
 }
 
