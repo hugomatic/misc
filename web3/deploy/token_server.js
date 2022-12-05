@@ -148,13 +148,16 @@ app.post('/photo', phone.photoRequest, (req, res) => {
   res.json({ticket: res.ticketData, mint: {amount: amount, to: to}})
 })
 
-let paid_trips = []
+const tripsData = {
+  paidTrips : [],
+  trips: []
+}
 
 async function getTraccarTrips(){
-  const trips = []
-  const devId = 161
-  const days = 20
+  const devId = Number(process.env.traccar_dev)
+  const days = 2
   const tripData = await getTrips(devId, days)
+  tripsData.trips = []
   console.log(tripData.length, 'trips for dev', devId, 'in last', days, 'days')
   for (let i in tripData) {
     const trip = tripData[i]
@@ -166,16 +169,18 @@ async function getTraccarTrips(){
     delete(trip.spentFuel)
     const hash =  getMd5(trip)
     let paid = true
-    if (!paid_trips.includes(hash)) {
+    if (!tripsData.paidTrips.includes(hash)) {
       paid = false
     }
-    trips.push({hash:hash, paid: paid, trip: trip})
+    // ai!
+    const reward = Number(trip.distance) * 0.00272
+    tripsData.trips.push({hash:hash, reward: reward, paid: paid, trip: trip})
   }
   const data = {
     server: process.env.traccar_url ,
     user: process.env.traccar_username,
     days: days,
-    trips: trips
+    trips: tripsData.trips
   }
   return data
 }
@@ -186,17 +191,49 @@ app.get('/trips', async (req, res) => {
 })
 
 app.get('/reset_trips', (req, res) => {
-  const count = paid_trips.length
-  paid_trips = []
+  const count = tripsData.paidTrips.length
+  tripsData.paidTrips = []
   const r = {success:true, count:count}
   console.log('reset trips', r)
   res.send(r)
 })
 
 app.get('/process_trips', (req, res) => {
-  const r = {success: 'comming soon'}
-  console.log('process trips', r)
-  res.send(r)
+
+//  const r = {success: 'comming soon'}
+//  console.log('process trips', r)
+//  res.send(r)
+  console.log(new Date(), 'process trips')
+  let trip
+  for (let i in tripsData.trips) {
+    const t = tripsData.trips[i]
+    if (t.paid == false) {
+      trip = t
+    }
+  }
+  if (!trip) {
+    res.send( {success: 'no trips to pay'})
+    return
+  }
+  // mark trip as paid before paying!!!
+  tripsData.paidTrips.push(trip.hash)
+  const to = process.env['DST_ACCOUNT']
+  const amount = '' + (trip.reward.toFixed(0)) + '000000000000000'
+  console.log('mint', amount,'tokens to ', to)
+
+  erc20token.mint(to, amount)
+    .then((result) => {
+      console.log(result)
+      res.json({mint: {amount: amount, to: to}, trip:trip, blockchain: result})
+    })
+    .catch((error) => {
+      let  stat = 500
+      if (error.code == 'INVALID_ARGUMENT') {
+        stat = 400
+      }
+      console.log('Error during transfer:', error)
+      res.status(stat).send({error: error.reason})
+    })
 })
 
 

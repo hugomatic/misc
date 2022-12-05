@@ -23,7 +23,7 @@ white-space: pre;
 
 <button onclick="onClickReset()">reset</button>
 <div class="response" id="reset"></div>
-<button onclick="onClickProcess()">process payments now</button>
+<button onclick="onClickProcess()">process next payment now</button>
 <div class="response" id="process"></div>
 
 <h2>latest trips</h2>
@@ -44,11 +44,12 @@ async function onClickReset() {
 }
 
 async function onClickProcess() {
-  if (window.confirm('Pay all unpaid trips immediately?')) {
+  if (window.confirm('Pay next queued unpaid trip immediately?')) {
     const res = await fetch('/process_trips')
     const resBody = await res.json()
     const div = document.getElementById("process")
     div.innerHTML = JSON.stringify(resBody, null, 2)
+    await updateTrips()
   }
 }
 
