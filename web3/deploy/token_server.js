@@ -80,6 +80,7 @@ app.get('/api/events', (req, res) => {
 app.post('/api/mint', (req, res) => {
   const to = req.query.to
   const amount = req.query.amount
+  console.log(new Date(), 'mint amount', amount, 'to', to)
   erc20token.mint(to, amount)
     .then((result) => {res.send(result)})
     .catch((error) => {
