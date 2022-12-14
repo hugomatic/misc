@@ -10,6 +10,7 @@ int square(int x) {
 
 
 int main() {
+  // execution will start immediately
   std::future<int> asyncFunction = std::async(&square, 12);
 
   for (int i=0; i< 10; i++) {

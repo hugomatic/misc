@@ -49,7 +49,11 @@ int main() {
   // solution : [p, u, b, k]
   using namespace std;
   std::vector<std::string> words {"pbb", "bpku", "bpkb", "kbu"};
-  pr(words);
+  for(auto &w: words){
+    cout << w << " ";
+  }
+  cout << endl;
+  // pr(words);
   // build our alphabet
   std::list<char> order;
   int count = 0;

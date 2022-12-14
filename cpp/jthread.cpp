@@ -16,8 +16,6 @@ void do_nothing(std::stop_token st) {
 int main()
 {
   std::jthread t{do_nothing};
-  std::cout << "join" << std::endl;
-  // t.join();
   int count = 5;
   while (count) {
     std::this_thread::yield();
