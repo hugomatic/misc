@@ -2,8 +2,10 @@
 #include <vector>
 #include <array>
 #include <iomanip>
-#include <map>
+#include <queue>
+#include <set>
 #include <functional>
+#include <iterator>
 
 #include "config.h" // in the cmake build dir
 
@@ -59,10 +61,21 @@ std::ostream& operator<< (std::ostream &out, Value &c) {
 class Data {
   public:
   std::vector<double> values;
+
+  Data() {
+  }
+
+  Data(const std::vector<double> &vals) {
+    std::copy(vals.begin(),
+              vals.end(),
+              std::back_inserter(values));
+  }
+
   Data(double v) {
     // std::cout << "Data(" << v <<  ")\n";
     values.push_back(v);
   }
+
   ~Data() {
     // std::cout << "~Data ";
     // repr(std::cout);
@@ -103,13 +116,17 @@ std::ostream& operator<< (std::ostream &out, Shape &c) {
   return out;
 }
 
+class Tensor;
+std::ostream& operator<< (std::ostream &out, Tensor &t);
+
+
 class Tensor {
   public:
   Data data;
   Data grad;
   Shape shape;
   Operation op;
-  std::array<Tensor*, 4> prevs;
+  std::vector<Tensor*> prevs;
   std::string label;
 
   std::function<void()> _backward{[](){}};
@@ -123,8 +140,22 @@ class Tensor {
       shape.dims.push_back(1);
   }
 
-  double val() const{
-    return data.values[0];
+
+ Tensor(std::vector<double> const &vals,
+        Operation op_=Operation::X,
+        std::string label_="" )
+    :data(vals),
+    op(op_),
+    label(label_)
+  {
+      for (size_t i=0; i < vals.size(); i++) {
+        grad.values.push_back(0);
+      }
+      shape.dims.push_back(vals.size());
+  }
+
+  std::vector<double> item() const {
+    return data.values;
   }
 
   void set(double v) {
@@ -134,19 +165,41 @@ class Tensor {
   void repr(std::ostream &o) {
     o << "tensor ";
     if(label != "") {
-      o << "\"" << label << "\" ";
+      o << "\"" << label << "\"";
     }
-    o << "(" << data << ")";
-  }
-
-  Tensor *add(Tensor &other) {
-    return ;
+    if (op != Operation::X) {
+      o << " " << op;
+    }
+    o << " (" << data << ")";
   }
 
   void backward() {
     std::cout << "backward" << std::endl;
     grad.values[0] = 1.0;
-    _backward();
+    std::vector<Tensor *> sequence;
+    std::queue<Tensor *> to_visit;
+    std::set<Tensor *> visited;
+
+    to_visit.push(this);
+    while(to_visit.empty()==false) {
+      // pick next one
+      Tensor *node = to_visit.front();
+      to_visit.pop();
+      if (visited.find(node) == visited.end()) {
+        visited.insert(node);
+        for(auto next: node->prevs) {
+          to_visit.push(next);
+        }
+        std::cout << "!!!! " << node << std::endl;
+        sequence.push_back(node);
+      }
+    }
+    std::cout << sequence.size()  << " nodes. Order of compute" << std::endl;
+    int i =0;
+    for (Tensor* n: sequence) {
+      std::cout << " " << (i++) << " " << *n << std::endl;
+      n->_backward();
+    }
   }
 };
 
@@ -157,7 +210,6 @@ std::ostream& operator<< (std::ostream &out, Tensor &t) {
 
 class Graph {
   std::vector<Tensor*> tensors;
-  std::map<int, std::string> labels;
   public:
     Graph()
     {}
@@ -176,11 +228,22 @@ class Graph {
 
     Tensor & add(Tensor &a, Tensor &b, const std::string &label="") {
       std::cout << "add" << std::endl;
-      return a.add(b, label=label);
       std::cout << a << " + " << b << std::endl;
-      tensors.push_back(new Tensor(a.val() + b.val(), Operation::ADD, label));
-      Tensor &t = *tensors[tensors.size()-1];
-      return t;
+      std::vector<double> sum;
+      for(size_t i = 0; i < a.data.values.size(); i++) {
+        sum.push_back(a.data.values[i] + b.data.values[i]);
+      }
+      tensors.push_back(new Tensor(sum, Operation::ADD, label));
+      Tensor &c = *tensors[tensors.size()-1];
+
+      // set the _bacward on a
+      c._backward = [&a, &b, &c](){
+        std::cout << "ADD BACK to back!" << std::endl;
+        std::cout << c << + " = " << a  << " + " << b << std::endl;
+        c.prevs.push_back(&a);
+        c.prevs.push_back(&b);
+      };
+      return c;
     }
 
     void repr(std::ostream &o) {
