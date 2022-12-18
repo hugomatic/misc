@@ -39,6 +39,7 @@ std::ostream& operator<<(std::ostream& stream, Operation op)
     return stream;
 }
 
+/*
 
 class Value {
   public:
@@ -57,6 +58,7 @@ std::ostream& operator<< (std::ostream &out, Value &c) {
   c.repr(out);
   return out;
 }
+*/
 
 class Data {
   public:
@@ -131,7 +133,7 @@ class Tensor {
 
   std::function<void()> _backward{[](){}};
 
-  Tensor(double v, Operation op_=Operation::X, std::string label_="" )
+  Tensor(double v, std::string label_="", Operation op_=Operation::X)
     :data(v),
     grad(0),
     op(op_),
@@ -140,10 +142,9 @@ class Tensor {
       shape.dims.push_back(1);
   }
 
-
- Tensor(std::vector<double> const &vals,
-        Operation op_=Operation::X,
-        std::string label_="" )
+  Tensor(std::vector<double> const &vals,
+                            std::string label_="",
+                            Operation op_=Operation::X)
     :data(vals),
     op(op_),
     label(label_)
@@ -190,14 +191,13 @@ class Tensor {
         for(auto next: node->prevs) {
           to_visit.push(next);
         }
-        std::cout << "!!!! " << node << std::endl;
         sequence.push_back(node);
       }
     }
-    std::cout << sequence.size()  << " nodes. Order of compute" << std::endl;
+    std::cout << sequence.size()  << " nodes. Compute graph" << std::endl;
     int i =0;
     for (Tensor* n: sequence) {
-      std::cout << " " << (i++) << " " << *n << std::endl;
+      std::cout << " " << (i++) << " " << *n << " grad: " <<  n->grad << std::endl;
       n->_backward();
     }
   }
@@ -220,28 +220,61 @@ class Graph {
       }
     }
 
-    Tensor & tensor(double v, Operation op=Operation::X, std::string label="") {
-      tensors.push_back(new Tensor(v, op, label));
+    Tensor & tensor(double v, std::string label="", Operation op=Operation::X) {
+      tensors.push_back(new Tensor(v, label, op));
       Tensor &t = *tensors[tensors.size()-1];
       return t;
     }
 
+    Tensor & mul(Tensor &a, Tensor &b, const std::string &label="") {
+      std::cout << &a << " " << a << " * " << &b << " " << b<< std::endl;
+      std::vector<double> mul;
+      for(size_t i = 0; i < a.data.values.size(); i++) {
+        mul.push_back(a.data.values[i] * b.data.values[i]);
+      }
+      tensors.push_back(new Tensor(mul, label, Operation::MUL));
+      Tensor &c = *tensors[tensors.size()-1];
+      c.prevs.push_back(&a);
+      c.prevs.push_back(&b);
+      // set the _bacward on a
+      c._backward = [&a, &b, &c](){
+        //std::cout << R"EOF(
+        //
+        //  c = a * b -> populate a.grad and b.grad from c's backward
+        //  dc/da = (((a+h) * b) - (a * b)) /h -> b
+        //  dc/db = (((a+h)+b) - (a+b)) /h -> a
+        // )EOF" << std::endl;
+        for(size_t i = 0; i < a.data.values.size(); i++) {
+          a.grad.values[i] += c.grad.values[i] * b.data.values[i];
+          b.grad.values[i] += c.grad.values[i] * a.data.values[i];
+        }
+      };
+      return c;
+    }
+
+
     Tensor & add(Tensor &a, Tensor &b, const std::string &label="") {
-      std::cout << "add" << std::endl;
-      std::cout << a << " + " << b << std::endl;
+      std::cout << &a << " " << a << " + " << &b << " " << b<< std::endl;
       std::vector<double> sum;
       for(size_t i = 0; i < a.data.values.size(); i++) {
         sum.push_back(a.data.values[i] + b.data.values[i]);
       }
-      tensors.push_back(new Tensor(sum, Operation::ADD, label));
+      tensors.push_back(new Tensor(sum, label, Operation::ADD));
       Tensor &c = *tensors[tensors.size()-1];
-
+      c.prevs.push_back(&a);
+      c.prevs.push_back(&b);
       // set the _bacward on a
       c._backward = [&a, &b, &c](){
-        std::cout << "ADD BACK to back!" << std::endl;
-        std::cout << c << + " = " << a  << " + " << b << std::endl;
-        c.prevs.push_back(&a);
-        c.prevs.push_back(&b);
+        //std::cout << R"EOF(
+        //
+        //  c = a + b
+        //  dc/da = (((a+h)+b) - (a+b)) /h -> 1
+        //  dc/db = (((a+h)+b) - (a+b)) /h -> 1
+        // )EOF" << std::endl;
+        for(size_t i = 0; i < a.data.values.size(); i++) {
+          a.grad.values[i] += c.grad.values[i] * 1.0;
+          b.grad.values[i] += c.grad.values[i] * 1.0;
+        }
       };
       return c;
     }
@@ -266,13 +299,9 @@ std::ostream& operator<< (std::ostream &out, Graph &c) {
 
 } // grad::
 
-int main(int argc, char* argv[]){
+void test_add() {
   using std::cout;
   using std::endl;
-
-  for (int i =0; i < argc; i++) {
-    cout << " " << i << "|" << argv[i] << "|" << endl;
-  }
 
   grad::Graph g;
   cout << "create graph " << g << endl;
@@ -286,6 +315,34 @@ int main(int argc, char* argv[]){
   cout << "a+b" << a_plus_b << endl;
   a_plus_b.backward();
   cout << g << endl;
+}
+
+void test_mul() {
+  using std::cout;
+  using std::endl;
+
+  grad::Graph g;
+  grad::Tensor &w = g.tensor(42., "w");
+  grad::Tensor &x = g.tensor(13., "x");
+  grad::Tensor &b = g.tensor(33, "b");
+  grad::Tensor &wx = g.mul(w,x, "wx");
+  grad::Tensor &o = g.add(wx, b, "o");
+  o.backward();
+  cout << g << endl;
+}
+
+
+int main(int argc, char* argv[]){
+  using std::cout;
+  using std::endl;
+
+  for (int i =0; i < argc; i++) {
+    cout << " " << i << "|" << argv[i] << "|" << endl;
+  }
+  cout << "\nTest add" << endl;
+  test_add();
+  cout << "\nTest mul" << endl;
+  test_mul();
   return 0;
 }
 
