@@ -43,7 +43,7 @@ int main() {
   cout << "found: " <<  (vis.find(t) != vis.end()) << endl;
 
   auto found = [&vis](tuple<int,int> t) -> bool {
-    auto [a,b] = t;
+    //auto [a,b] = t;
     return  vis.find(t) != vis.end();
   };
   cout << "found lambda yes: " << found(t) << endl;

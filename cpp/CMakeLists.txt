@@ -26,6 +26,8 @@ add_executable(alien alien.cpp)
 
 add_executable(phone phone.cpp)
 
+add_executable(potpourri potpourri.cpp)
+
 add_executable(interval interval.cpp)
 
 add_executable(matrix01 matrix01.cpp)
@@ -50,5 +52,6 @@ install (TARGETS
   mine
   tree
   set
+  potpourri
   DESTINATION lib/${PROJECT_NAME}
 )
